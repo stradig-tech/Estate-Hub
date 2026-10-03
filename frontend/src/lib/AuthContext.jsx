@@ -32,6 +32,25 @@ export const AuthProvider = ({ children }) => {
                 }
                 link.href = settings.favicon;
             }
+
+            // Handle OG image update if present
+            if (settings?.og_image) {
+                let ogMeta = document.querySelector("meta[property='og:image']");
+                if (!ogMeta) {
+                    ogMeta = document.createElement('meta');
+                    ogMeta.setAttribute('property', 'og:image');
+                    document.head.appendChild(ogMeta);
+                }
+                ogMeta.content = settings.og_image;
+
+                let twMeta = document.querySelector("meta[name='twitter:image']");
+                if (!twMeta) {
+                    twMeta = document.createElement('meta');
+                    twMeta.setAttribute('name', 'twitter:image');
+                    document.head.appendChild(twMeta);
+                }
+                twMeta.content = settings.og_image;
+            }
         } catch (error) {
             console.error('Failed to fetch site settings:', error);
         }
@@ -85,10 +104,10 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const register = async (email, password) => {
+    const register = async (email, password, extra = {}) => {
         setIsLoadingAuth(true);
         try {
-            await authService.register(email, password);
+            await authService.register(email, password, extra);
             await checkUserAuth();
             return true;
         } catch (error) {
@@ -116,6 +135,7 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider value={{
             user,
+            setUser,
             isAuthenticated,
             isLoadingAuth,
             isLoadingPublicSettings, // Mocked to false for compatibility

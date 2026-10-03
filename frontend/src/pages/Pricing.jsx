@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { invoiceService, authService } from '@/api/services';
 import { useAuth } from '@/lib/AuthContext';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,25 +28,12 @@ const PLANS = [
 export default function Pricing() {
     const { user, isAuthenticated } = useAuth();
     const navigate = useNavigate();
-    const [subscribing, setSubscribing] = useState(null);
 
-    const handleSubscribe = async (plan) => {
+    // Paid plans need server-side checkout (payment provider + webhooks). Until that exists the
+    // browser must never create invoices or change a subscription, so paid plans are disabled.
+    const handleSubscribe = (plan) => {
         if (!isAuthenticated) { navigate('/login'); return; }
-        setSubscribing(plan.name);
-        try {
-            await invoiceService.create({
-                plan_name: plan.name,
-                amount: plan.price,
-                status: 'paid',
-                invoice_date: new Date().toISOString().split('T')[0],
-                invoice_number: `INV-${Date.now()}`,
-                user_id: user?.id,
-            });
-            await authService.updateMe({ subscription_plan: plan.name, subscription_status: 'active' });
-            navigate('/dashboard');
-        } catch (err) {
-            setSubscribing(null);
-        }
+        if (plan.price === 0) navigate('/dashboard');
     };
 
     return (
@@ -79,9 +64,9 @@ export default function Pricing() {
                             className="w-full mb-6"
                             variant={plan.highlight ? 'default' : 'outline'}
                             onClick={() => handleSubscribe(plan)}
-                            disabled={subscribing === plan.name || user?.subscription_plan === plan.name}
+                            disabled={plan.price > 0 || (user?.subscription_plan || 'Free') === plan.name}
                         >
-                            {subscribing === plan.name ? 'Processing...' : user?.subscription_plan === plan.name ? 'Current Plan' : 'Get Started'}
+                            {(user?.subscription_plan || 'Free') === plan.name ? 'Current Plan' : plan.price > 0 ? 'Coming Soon' : 'Get Started'}
                         </Button>
                         <ul className="space-y-2.5">
                             {plan.features.map(f => (
@@ -95,7 +80,7 @@ export default function Pricing() {
             </div>
 
             <p className="text-center text-xs text-muted-foreground mt-8">
-                Prices shown in USD. Payment processing via Stripe (demo checkout — no real charges).
+                Prices shown in USD. Paid plans will be available once online payments are enabled.
             </p>
         </div>
     );

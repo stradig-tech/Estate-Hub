@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { propertyService } from '@/api/services';
+import { propertyService, fileService } from '@/api/services';
 import { useAuth } from '@/lib/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,42 +24,73 @@ export default function PropertyForm({ initialData, onSubmit }) {
         title: '', description: '', price: '', listing_type: 'for_sale', property_type: 'house',
         bedrooms: '', bathrooms: '', size: '', lot_size: '', year_built: '', parking: '',
         address: '', city: '', state: '', zip_code: '', latitude: '', longitude: '',
-        images: [], floor_plan_image: '', video_url: '', virtual_tour_url: '', amenities: [],
+        images: [], floor_plan_image: '', floor_plan_images: [], video_url: '', virtual_tour_url: '', amenities: [],
     });
 
     useEffect(() => {
         if (initialData) {
-            setForm(initialData);
+            setForm({
+                title: initialData.title || '',
+                description: initialData.description || '',
+                price: initialData.price != null ? String(initialData.price) : '',
+                listing_type: initialData.listing_type || 'for_sale',
+                property_type: initialData.property_type || 'house',
+                bedrooms: initialData.bedrooms != null ? String(initialData.bedrooms) : '',
+                bathrooms: initialData.bathrooms != null ? String(initialData.bathrooms) : '',
+                size: initialData.size != null ? String(initialData.size) : '',
+                lot_size: initialData.lot_size != null ? String(initialData.lot_size) : '',
+                year_built: initialData.year_built != null ? String(initialData.year_built) : '',
+                parking: initialData.parking != null ? String(initialData.parking) : '',
+                address: initialData.address || '',
+                city: initialData.city || '',
+                state: initialData.state || '',
+                zip_code: initialData.zip_code || '',
+                latitude: initialData.latitude != null ? String(initialData.latitude) : '',
+                longitude: initialData.longitude != null ? String(initialData.longitude) : '',
+                images: Array.isArray(initialData.images) ? initialData.images : [],
+                floor_plan_image: initialData.floor_plan_image || '',
+                floor_plan_images: Array.isArray(initialData.floor_plan_images) && initialData.floor_plan_images.length > 0
+                    ? initialData.floor_plan_images
+                    : (initialData.floor_plan_image ? [initialData.floor_plan_image] : []),
+                video_url: initialData.video_url || '',
+                virtual_tour_url: initialData.virtual_tour_url || '',
+                amenities: Array.isArray(initialData.amenities) ? initialData.amenities : [],
+            });
         }
     }, [initialData]);
 
     const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
     const handleImageUpload = async (e, field) => {
-        const files = Array.from(e.target.files);
+        const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
         setUploading(true);
         try {
             const urls = [];
             for (const file of files) {
-                // Mock upload for Django backend migration
-                // const { file_url } = await base44.integrations.Core.UploadFile({ file });
-                const file_url = URL.createObjectURL(file); // Temporary preview
-                urls.push(file_url);
+                const res = await fileService.upload(file);
+                const file_url = res.url || res.file_url;
+                if (file_url) {
+                    urls.push(file_url);
+                }
             }
             if (field === 'images') {
-                set('images', [...form.images, ...urls]);
+                set('images', [...(form.images || []), ...urls]);
+            } else if (field === 'floor_plan_images') {
+                const updated = [...(form.floor_plan_images || []), ...urls];
+                set('floor_plan_images', updated);
+                set('floor_plan_image', updated[0] || '');
             } else {
-                set(field, urls[0]);
+                set(field, urls[0] || '');
             }
         } catch (err) {
-            // no-op
+            console.error('Failed to upload image:', err);
         } finally {
             setUploading(false);
         }
     };
 
-    const removeImage = (idx) => set('images', form.images.filter((_, i) => i !== idx));
+    const removeImage = (idx) => set('images', (form.images || []).filter((_, i) => i !== idx));
 
     const toggleAmenity = (a) => {
         const current = form.amenities || [];
@@ -80,16 +111,18 @@ export default function PropertyForm({ initialData, onSubmit }) {
             bedrooms: Number(form.bedrooms) || 0,
             bathrooms: Number(form.bathrooms) || 0,
             size: Number(form.size) || 0,
-            lot_size: Number(form.lot_size) || undefined,
-            year_built: Number(form.year_built) || undefined,
+            lot_size: form.lot_size ? Number(form.lot_size) : null,
+            year_built: form.year_built ? Number(form.year_built) : null,
             parking: Number(form.parking) || 0,
-            latitude: form.latitude ? Number(form.latitude) : undefined,
-            longitude: form.longitude ? Number(form.longitude) : undefined,
-            agent_id: user?.id,
-            agent_name: user?.full_name,
-            status: 'pending',
-            views: 0,
+            latitude: form.latitude ? Number(form.latitude) : null,
+            longitude: form.longitude ? Number(form.longitude) : null,
         };
+        if (!initialData) {
+            payload.agent_id = user?.id;
+            payload.agent_name = user?.full_name;
+            payload.status = 'pending';
+            payload.views = 0;
+        }
         if (onSubmit) {
             await onSubmit(payload);
         } else {
@@ -120,16 +153,16 @@ export default function PropertyForm({ initialData, onSubmit }) {
                     <div className="space-y-4">
                         <div>
                             <Label>Listing Title *</Label>
-                            <Input value={form.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Modern Family Home with Pool" />
+                            <Input value={form.title || ''} onChange={e => set('title', e.target.value)} placeholder="e.g. Modern Family Home with Pool" />
                         </div>
                         <div>
                             <Label>Description</Label>
-                            <Textarea value={form.description} onChange={e => set('description', e.target.value)} placeholder="Describe the property..." rows={4} />
+                            <Textarea value={form.description || ''} onChange={e => set('description', e.target.value)} placeholder="Describe the property..." rows={4} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <Label>Listing Type *</Label>
-                                <Select value={form.listing_type} onValueChange={v => set('listing_type', v)}>
+                                <Select value={form.listing_type || 'for_sale'} onValueChange={v => set('listing_type', v)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="for_sale">For Sale</SelectItem>
@@ -139,7 +172,7 @@ export default function PropertyForm({ initialData, onSubmit }) {
                             </div>
                             <div>
                                 <Label>Property Type *</Label>
-                                <Select value={form.property_type} onValueChange={v => set('property_type', v)}>
+                                <Select value={form.property_type || 'house'} onValueChange={v => set('property_type', v)}>
                                     <SelectTrigger><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         {PROPERTY_TYPES.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
@@ -149,7 +182,7 @@ export default function PropertyForm({ initialData, onSubmit }) {
                         </div>
                         <div>
                             <Label>Price ($) *</Label>
-                            <Input type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="e.g. 450000" />
+                            <Input type="number" value={form.price || ''} onChange={e => set('price', e.target.value)} placeholder="e.g. 450000" />
                         </div>
                     </div>
                 )}
@@ -157,27 +190,27 @@ export default function PropertyForm({ initialData, onSubmit }) {
                 {step === 1 && (
                     <div className="space-y-4">
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms} onChange={e => set('bedrooms', e.target.value)} /></div>
-                            <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms} onChange={e => set('bathrooms', e.target.value)} /></div>
-                            <div><Label>Size (sqft)</Label><Input type="number" value={form.size} onChange={e => set('size', e.target.value)} /></div>
-                            <div><Label>Lot Size (sqft)</Label><Input type="number" value={form.lot_size} onChange={e => set('lot_size', e.target.value)} /></div>
-                            <div><Label>Year Built</Label><Input type="number" value={form.year_built} onChange={e => set('year_built', e.target.value)} /></div>
-                            <div><Label>Parking Spaces</Label><Input type="number" value={form.parking} onChange={e => set('parking', e.target.value)} /></div>
+                            <div><Label>Bedrooms</Label><Input type="number" value={form.bedrooms ?? ''} onChange={e => set('bedrooms', e.target.value)} /></div>
+                            <div><Label>Bathrooms</Label><Input type="number" value={form.bathrooms ?? ''} onChange={e => set('bathrooms', e.target.value)} /></div>
+                            <div><Label>Size (sqft)</Label><Input type="number" value={form.size ?? ''} onChange={e => set('size', e.target.value)} /></div>
+                            <div><Label>Lot Size (sqft)</Label><Input type="number" value={form.lot_size ?? ''} onChange={e => set('lot_size', e.target.value)} /></div>
+                            <div><Label>Year Built</Label><Input type="number" value={form.year_built ?? ''} onChange={e => set('year_built', e.target.value)} /></div>
+                            <div><Label>Parking Spaces</Label><Input type="number" value={form.parking ?? ''} onChange={e => set('parking', e.target.value)} /></div>
                         </div>
                     </div>
                 )}
 
                 {step === 2 && (
                     <div className="space-y-4">
-                        <div><Label>Street Address *</Label><Input value={form.address} onChange={e => set('address', e.target.value)} placeholder="123 Main Street" /></div>
+                        <div><Label>Street Address *</Label><Input value={form.address || ''} onChange={e => set('address', e.target.value)} placeholder="123 Main Street" /></div>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            <div><Label>City *</Label><Input value={form.city} onChange={e => set('city', e.target.value)} placeholder="Austin" /></div>
-                            <div><Label>State *</Label><Input value={form.state} onChange={e => set('state', e.target.value)} placeholder="TX" /></div>
-                            <div><Label>Zip Code</Label><Input value={form.zip_code} onChange={e => set('zip_code', e.target.value)} placeholder="78701" /></div>
+                            <div><Label>City *</Label><Input value={form.city || ''} onChange={e => set('city', e.target.value)} placeholder="Austin" /></div>
+                            <div><Label>State *</Label><Input value={form.state || ''} onChange={e => set('state', e.target.value)} placeholder="TX" /></div>
+                            <div><Label>Zip Code</Label><Input value={form.zip_code || ''} onChange={e => set('zip_code', e.target.value)} placeholder="78701" /></div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div><Label>Latitude</Label><Input type="number" step="any" value={form.latitude} onChange={e => set('latitude', e.target.value)} placeholder="30.2672" /></div>
-                            <div><Label>Longitude</Label><Input type="number" step="any" value={form.longitude} onChange={e => set('longitude', e.target.value)} placeholder="-97.7431" /></div>
+                            <div><Label>Latitude</Label><Input type="number" step="any" value={form.latitude ?? ''} onChange={e => set('latitude', e.target.value)} placeholder="30.2672" /></div>
+                            <div><Label>Longitude</Label><Input type="number" step="any" value={form.longitude ?? ''} onChange={e => set('longitude', e.target.value)} placeholder="-97.7431" /></div>
                         </div>
                     </div>
                 )}
@@ -203,22 +236,37 @@ export default function PropertyForm({ initialData, onSubmit }) {
                             </div>
                         </div>
                         <div>
-                            <Label className="mb-2 block">Floor Plan Image</Label>
-                            {form.floor_plan_image ? (
-                                <div className="relative w-full max-w-xs aspect-video rounded-lg overflow-hidden border border-border">
-                                    <img src={form.floor_plan_image} alt="Floor plan" className="w-full h-full object-cover" />
-                                    <button onClick={() => set('floor_plan_image', '')} className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white"><X className="w-3 h-3" /></button>
-                                </div>
-                            ) : (
-                                <label className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed border-border cursor-pointer hover:border-primary text-sm text-muted-foreground w-fit">
-                                    <Upload className="w-4 h-4" /> Upload Floor Plan
-                                    <input type="file" accept="image/*" className="hidden" onChange={e => handleImageUpload(e, 'floor_plan_image')} disabled={uploading} />
+                            <Label className="mb-2 block">Floor Plan Diagrams (Multi)</Label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                {(form.floor_plan_images || (form.floor_plan_image ? [form.floor_plan_image] : [])).map((fp, i) => (
+                                    <div key={i} className="relative aspect-video rounded-lg overflow-hidden border border-border group bg-slate-50">
+                                        <img src={fp} alt={`Floor plan ${i + 1}`} className="w-full h-full object-contain p-1" />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const list = (form.floor_plan_images || (form.floor_plan_image ? [form.floor_plan_image] : [])).filter((_, idx) => idx !== i);
+                                                set('floor_plan_images', list);
+                                                set('floor_plan_image', list[0] || '');
+                                            }}
+                                            className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                        <span className="absolute bottom-1 left-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded">
+                                            {i === 0 ? 'Main Plan' : `Plan #${i + 1}`}
+                                        </span>
+                                    </div>
+                                ))}
+                                <label className="aspect-video rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors text-muted-foreground hover:text-primary">
+                                    <Upload className="w-4 h-4 mb-1" />
+                                    <span className="text-xs">{uploading ? 'Uploading...' : 'Upload Floor Plan'}</span>
+                                    <input type="file" multiple accept="image/*" className="hidden" onChange={e => handleImageUpload(e, 'floor_plan_images')} disabled={uploading} />
                                 </label>
-                            )}
+                            </div>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div><Label>Video URL</Label><Input value={form.video_url} onChange={e => set('video_url', e.target.value)} placeholder="https://youtube.com/..." /></div>
-                            <div><Label>360° Virtual Tour URL</Label><Input value={form.virtual_tour_url} onChange={e => set('virtual_tour_url', e.target.value)} placeholder="https://..." /></div>
+                            <div><Label>Video URL</Label><Input value={form.video_url || ''} onChange={e => set('video_url', e.target.value)} placeholder="https://youtube.com/..." /></div>
+                            <div><Label>360° Virtual Tour URL</Label><Input value={form.virtual_tour_url || ''} onChange={e => set('virtual_tour_url', e.target.value)} placeholder="https://..." /></div>
                         </div>
                     </div>
                 )}
@@ -248,7 +296,7 @@ export default function PropertyForm({ initialData, onSubmit }) {
                     </Button>
                 ) : (
                     <Button onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? 'Submitting...' : 'Submit Property'}
+                        {submitting ? 'Saving...' : (initialData ? 'Save Changes' : 'Submit Property')}
                     </Button>
                 )}
             </div>

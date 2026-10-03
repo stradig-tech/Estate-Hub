@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { userService, propertyService, reviewService } from '@/api/services';
+import { agentService, propertyService, reviewService } from '@/api/services';
 import { Card } from '@/components/ui/card';
 import StarRating from '@/components/StarRating';
 import ReviewSection from '@/components/reviews/ReviewSection';
@@ -18,9 +18,9 @@ export default function AgentProfile() {
         const load = async () => {
             try {
                 try {
-                    const user = await userService.get(id);
+                    const user = await agentService.get(id);
                     if (user) setAgent(user);
-                } catch (e) { /* permission restricted */ }
+                } catch (e) { /* agent not found */ }
 
                 const propsData = await propertyService.list({ agent_id: id, status: 'active' });
                 const props = propsData.results || propsData;

@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { Phone, Mail, Quote, Star, CheckCircle, Check, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cmsService } from '@/api/services';
+import { cmsService, agentService } from '@/api/services';
 import { useAuth } from '@/lib/AuthContext';
+import BecomePartnerBanner from '@/components/common/BecomePartnerBanner';
 
 // Mock data
 const AGENTS = [
@@ -58,11 +59,30 @@ const TESTIMONIALS = [
 export default function AboutUs() {
     const { siteSettings } = useAuth();
     const [pageContent, setPageContent] = useState(null);
+    const [teamAgents, setTeamAgents] = useState([]);
 
     useEffect(() => {
         cmsService.getPageContent('about-us')
             .then(data => setPageContent(data))
             .catch(err => console.error("Failed to fetch page content:", err));
+
+        agentService.list({ featured: true })
+            .then(data => {
+                const list = data.results || data;
+                if (Array.isArray(list) && list.length > 0) {
+                    setTeamAgents(list);
+                } else {
+                    agentService.list()
+                        .then(allData => {
+                            const allList = allData.results || allData;
+                            if (Array.isArray(allList) && allList.length > 0) {
+                                setTeamAgents(allList);
+                            }
+                        })
+                        .catch(() => {});
+                }
+            })
+            .catch(() => {});
     }, []);
 
     return (
@@ -105,29 +125,72 @@ export default function AboutUs() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                        {AGENTS.map((agent, i) => (
-                            <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                                <div className="group">
-                                    <div className="relative aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-muted">
-                                        <img src={agent.image} alt={agent.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                                    </div>
-                                    <div className="flex items-center justify-between px-1">
-                                        <div>
-                                            <h4 className="font-bold text-lg text-foreground">{agent.name}</h4>
-                                            <p className="text-xs text-muted-foreground">{agent.role}</p>
+                        {(teamAgents.length > 0 ? teamAgents : AGENTS).map((agent, i) => {
+                            const agentName = agent.full_name || agent.name;
+                            const agentRole = agent.agent_title || agent.role || agent.bio || (agent.agency_name ? `${agent.agency_name} Agent` : "Administrative Staff");
+                            const agentImg = agent.avatar_url || agent.image || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80";
+                            const phone = agent.public_phone || agent.phone;
+                            const email = agent.public_email || agent.email;
+                            const agentId = agent.id;
+
+                            return (
+                                <motion.div key={agentId || i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                                    <div className="group">
+                                        <Link to={agentId ? `/agents/${agentId}` : '#'} className="block relative aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-muted">
+                                            <img 
+                                                src={agentImg} 
+                                                alt={agentName} 
+                                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                                            />
+                                        </Link>
+                                        <div className="flex items-center justify-between px-1">
+                                            <div className="min-w-0 flex-1 pr-2">
+                                                <Link to={agentId ? `/agents/${agentId}` : '#'} className="block">
+                                                    <h4 className="font-bold text-lg text-foreground truncate hover:text-primary transition-colors">{agentName}</h4>
+                                                </Link>
+                                                <p className="text-xs text-muted-foreground truncate">{agentRole}</p>
+                                            </div>
+                                            <div className="flex gap-2 shrink-0">
+                                                {phone ? (
+                                                    <a 
+                                                        href={`tel:${phone}`}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-muted-foreground transition-all"
+                                                        title={`Call ${agentName} (${phone})`}
+                                                    >
+                                                        <Phone className="w-3.5 h-3.5" />
+                                                    </a>
+                                                ) : (
+                                                    <Link 
+                                                        to={agentId ? `/agents/${agentId}` : '#'}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                        title="Contact Agent"
+                                                    >
+                                                        <Phone className="w-3.5 h-3.5" />
+                                                    </Link>
+                                                )}
+                                                {email ? (
+                                                    <a 
+                                                        href={`mailto:${email}`}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-muted-foreground transition-all"
+                                                        title={`Email ${agentName} (${email})`}
+                                                    >
+                                                        <Mail className="w-3.5 h-3.5" />
+                                                    </a>
+                                                ) : (
+                                                    <Link 
+                                                        to={agentId ? `/agents/${agentId}` : '#'}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                        title="Email Agent"
+                                                    >
+                                                        <Mail className="w-3.5 h-3.5" />
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                                                <Phone className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                                                <Mail className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -243,24 +306,8 @@ export default function AboutUs() {
                 </div>
             </section>
 
-            {/* Bottom CTA Banner */}
-            <section className="mx-auto max-w-7xl px-4 pb-20">
-                <div className="bg-[#10b981] rounded-[2rem] overflow-hidden flex flex-col md:flex-row items-center justify-between relative shadow-xl">
-                    <div className="p-10 md:p-16 z-10 w-full md:w-1/2">
-                        <p className="text-emerald-200 text-sm font-semibold uppercase tracking-wider mb-2">WORK WITH US</p>
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 leading-tight">
-                            List your Properties on EstateHub, join Us Now!
-                        </h2>
-                        <Button asChild size="lg" className="rounded-full bg-white text-primary hover:bg-slate-100 px-8 font-semibold">
-                            <Link to="/register">Start Work With Us <ArrowRight className="w-4 h-4 ml-2" /></Link>
-                        </Button>
-                    </div>
-                    {/* Decorative House Image (Right side) */}
-                    <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block">
-                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="CTA House" className="w-full h-full object-cover object-left opacity-90" style={{ clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 0 100%)' }} />
-                    </div>
-                </div>
-            </section>
+            {/* Bottom Become Partner Banner */}
+            <BecomePartnerBanner />
         </div>
     );
 }

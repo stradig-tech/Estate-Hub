@@ -19,6 +19,7 @@ import Pricing from './pages/Pricing';
 import Admin from './pages/Admin';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
+import RegisterAgent from '@/pages/RegisterAgent';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import AboutUs from './pages/AboutUs';
@@ -71,6 +72,8 @@ const AuthenticatedApp = () => {
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/register-agent" element={<RegisterAgent />} />
+                <Route path="/register/agent" element={<RegisterAgent />} />
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/blog" element={<Blog />} />

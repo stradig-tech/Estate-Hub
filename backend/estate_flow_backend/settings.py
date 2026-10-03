@@ -10,27 +10,61 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
+from datetime import timedelta
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def _load_dotenv(path):
+    """Tiny .env loader (KEY=VALUE per line) so no extra dependency is needed."""
+    if not path.exists():
+        return
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        line = raw.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, _, value = line.partition('=')
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv(BASE_DIR / '.env')
+
+
+def env_bool(name, default=False):
+    return os.environ.get(name, str(default)).strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+def env_list(name, default=''):
+    return [item.strip() for item in os.environ.get(name, default).split(',') if item.strip()]
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--p30c89!ngw6g=vkj=tnj^$9t^n)!0h#0faaan^g8a0d=(!4&1'
-
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Defaults to True for local development; set DJANGO_DEBUG=False in production.
+DEBUG = env_bool('DJANGO_DEBUG', True)
 
-ALLOWED_HOSTS = []
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = 'django-insecure-dev-only-key-change-me'
+    else:
+        raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set when DJANGO_DEBUG is False.')
+
+ALLOWED_HOSTS = env_list('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1,testserver' if DEBUG else '')
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',  # must come before django.contrib.admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,13 +98,15 @@ ROOT_URLCONF = 'estate_flow_backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'estate_flow_backend.context_processors.admin_site_logo',
+                'estate_flow_backend.context_processors.admin_dashboard_metrics',
             ],
         },
     },
@@ -84,8 +120,17 @@ WSGI_APPLICATION = 'estate_flow_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DATABASE_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DATABASE_NAME', str(BASE_DIR / 'db.sqlite3')),
+        'USER': os.environ.get('DATABASE_USER', ''),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', ''),
+        'HOST': os.environ.get('DATABASE_HOST', ''),
+        'PORT': os.environ.get('DATABASE_PORT', ''),
+        'OPTIONS': (
+            {'charset': 'utf8mb4', 'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"}
+            if 'mysql' in os.environ.get('DATABASE_ENGINE', '')
+            else {}
+        ),
     }
 }
 
@@ -108,6 +153,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -125,23 +175,162 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'accounts.User'
 
-CORS_ALLOW_ALL_ORIGINS = True
+# Explicit origins only (comma-separated in CORS_ALLOWED_ORIGINS). Dev defaults to Vite.
+CORS_ALLOWED_ORIGINS = env_list(
+    'CORS_ALLOWED_ORIGINS',
+    'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000' if DEBUG else '',
+)
+CSRF_TRUSTED_ORIGINS = env_list('CSRF_TRUSTED_ORIGINS', '')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': os.environ.get('THROTTLE_ANON', '300/min'),
+        'user': os.environ.get('THROTTLE_USER', '1000/min'),
+        # Scoped throttles (used via ScopedRateThrottle / throttle_scope)
+        'login': os.environ.get('THROTTLE_LOGIN', '60/min' if DEBUG else '10/min'),
+        'register': os.environ.get('THROTTLE_REGISTER', '300/hour' if DEBUG else '10/hour'),
+        'inquiry': os.environ.get('THROTTLE_INQUIRY', '60/hour' if DEBUG else '10/hour'),
+        'view': os.environ.get('THROTTLE_VIEW', '120/hour'),
+    },
 }
 
-from datetime import timedelta
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.environ.get('JWT_ACCESS_MINUTES', '60'))),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', True)
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '31536000'))
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
+# ---------------------------------------------------------------------------------------
+# Admin panel (django-jazzmin)
+# ---------------------------------------------------------------------------------------
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+
+def get_jazzmin_user_avatar(user):
+    from django.templatetags.static import static
+    avatar = getattr(user, 'avatar_url', None)
+    if avatar:
+        return str(avatar)
+    return static('vendor/adminlte/img/user2-160x160.jpg')
+
+JAZZMIN_SETTINGS = {
+    'site_title': 'EstateHub Admin',
+    'site_header': 'EstateHub',
+    'site_brand': 'EstateHub',
+    'welcome_sign': 'Welcome to the EstateHub management portal',
+    'copyright': 'EstateHub',
+    'search_model': ['properties.Property', 'accounts.User'],
+
+    # Top navigation
+    'topmenu_links': [
+        {'name': 'Dashboard', 'url': 'admin:index', 'permissions': ['auth.view_user']},
+        {'name': 'Pending agents', 'url': '/admin/accounts/user/?role__exact=agent&agent_status__exact=pending',
+         'permissions': ['accounts.change_user']},
+        {'name': 'Pending listings', 'url': '/admin/properties/property/?status__exact=pending',
+         'permissions': ['properties.change_property']},
+        {'name': 'Website', 'url': FRONTEND_URL, 'new_window': True},
+        {'model': 'accounts.User'},
+    ],
+
+    # Sidebar
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'order_with_respect_to': [
+        'properties', 'properties.Property', 'properties.NearbyPlace',
+        'support', 
+        'accounts', 'accounts.Agent', 'accounts.Agency', 'accounts.User', 'accounts.Review', 'accounts.Favorite',
+        'billing', 'cms', 'auth',
+    ],
+    'icons': {
+        'auth': 'fas fa-users-cog',
+        'auth.Group': 'fas fa-users',
+        'accounts': 'fas fa-user-friends',
+        'accounts.Agent': 'fas fa-user-tie',
+        'accounts.Agency': 'fas fa-building',
+        'accounts.User': 'fas fa-user-circle',
+        'accounts.Favorite': 'fas fa-heart',
+        'accounts.Review': 'fas fa-star',
+        'properties': 'fas fa-city',
+        'properties.Property': 'fas fa-home',
+        'properties.NearbyPlace': 'fas fa-map-marker-alt',
+        'support': 'fas fa-headset',
+        'support.Inquiry': 'fas fa-envelope-open-text',
+        'billing': 'fas fa-wallet',
+        'billing.SubscriptionPlan': 'fas fa-credit-card',
+        'billing.Invoice': 'fas fa-file-invoice-dollar',
+        'cms': 'fas fa-pen-nib',
+        'cms.SiteSetting': 'fas fa-cogs',
+        'cms.MenuCategory': 'fas fa-bars',
+        'cms.PageContent': 'fas fa-file-alt',
+        'cms.BlogPost': 'fas fa-newspaper',
+    },
+    'default_icon_parents': 'fas fa-chevron-circle-right',
+    'default_icon_children': 'fas fa-circle',
+
+    'custom_css': 'css/admin_custom.css',
+    'user_avatar': get_jazzmin_user_avatar,
+    'related_modal_active': True,
+    'changeform_format': 'horizontal_tabs',
+    'changeform_format_overrides': {
+        'auth.group': 'vertical_tabs',
+        'accounts.user': 'collapsible',
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'navbar_small_text': False,
+    'footer_small_text': False,
+    'body_small_text': False,
+    'brand_small_text': False,
+    'brand_colour': 'navbar-indigo',
+    'accent': 'accent-indigo',
+    'navbar': 'navbar-white navbar-light',
+    'no_navbar_border': False,
+    'navbar_fixed': True,
+    'layout_boxed': False,
+    'footer_fixed': False,
+    'sidebar_fixed': True,
+    'sidebar': 'sidebar-dark-indigo',
+    'sidebar_nav_small_text': False,
+    'sidebar_disable_expand': False,
+    'sidebar_nav_child_indent': True,
+    'sidebar_nav_compact_style': False,
+    'sidebar_nav_legacy_style': False,
+    'sidebar_nav_flat_style': False,
+    'theme': 'default',
+    'default_theme_mode': 'auto',  # follow the OS light/dark preference
+    'button_classes': {
+        'primary': 'btn-primary',
+        'secondary': 'btn-secondary',
+        'info': 'btn-info',
+        'warning': 'btn-warning',
+        'danger': 'btn-danger',
+        'success': 'btn-success',
+    },
 }

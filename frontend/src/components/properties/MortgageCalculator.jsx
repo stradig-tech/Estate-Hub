@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Calculator, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,10 +7,17 @@ import { Card } from '@/components/ui/card';
 import { formatPrice } from '@/lib/format';
 
 export default function MortgageCalculator({ price = 500000 }) {
-    const [homePrice, setHomePrice] = useState(price);
-    const [downPayment, setDownPayment] = useState(Math.round(price * 0.2));
+    const numPrice = Number(price) || 0;
+    const [homePrice, setHomePrice] = useState(numPrice);
+    const [downPayment, setDownPayment] = useState(Math.round(numPrice * 0.2));
     const [interestRate, setInterestRate] = useState(6.5);
     const [loanTerm, setLoanTerm] = useState('30');
+
+    useEffect(() => {
+        const p = Number(price) || 0;
+        setHomePrice(p);
+        setDownPayment(Math.round(p * 0.2));
+    }, [price]);
 
     const { monthlyPayment, totalInterest, totalPaid, loanAmount } = useMemo(() => {
         const principal = homePrice - downPayment;

@@ -5,6 +5,7 @@ import { Quote, Star, ArrowRight, Plus, Minus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cmsService } from '@/api/services';
+import BecomePartnerBanner from '@/components/common/BecomePartnerBanner';
 
 import { SERVICES_DATA as SERVICES } from './ServiceDetail';
 
@@ -184,24 +185,8 @@ export default function Services() {
                 </div>
             </section>
 
-            {/* Bottom CTA Banner */}
-            <section className="mx-auto max-w-7xl px-4 pb-20">
-                <div className="bg-slate-50 border border-slate-100 rounded-[2rem] overflow-hidden flex flex-col md:flex-row items-center justify-between relative shadow-sm">
-                    <div className="p-10 md:p-16 z-10 w-full md:w-1/2">
-                        <p className="text-[#10b981] text-sm font-semibold uppercase tracking-wider mb-2">BECOME PARTNERS</p>
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8 leading-tight">
-                            List your Properties on EstateHub, join Us Now!
-                        </h2>
-                        <Button asChild size="lg" className="rounded-full bg-[#10b981] text-white hover:bg-[#059669] px-8 font-semibold">
-                            <Link to="/register">Become A Hosting <ArrowRight className="w-4 h-4 ml-2" /></Link>
-                        </Button>
-                    </div>
-                    {/* Decorative House Image (Right side) */}
-                    <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:block">
-                        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="CTA House" className="w-full h-full object-cover object-left" style={{ clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 0 100%)' }} />
-                    </div>
-                </div>
-            </section>
+            {/* Bottom Become Partner Banner */}
+            <BecomePartnerBanner />
         </div>
     );
 }

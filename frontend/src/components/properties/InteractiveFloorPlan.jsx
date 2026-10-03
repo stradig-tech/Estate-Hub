@@ -34,10 +34,12 @@ const DEFAULT_ROOMS = [
     { id: 'patio', type: 'living', name: 'Patio', dims: '12 x 8', points: '460,300 580,300 580,380 460,380' },
 ];
 
-export default function InteractiveFloorPlan({ property, rooms = DEFAULT_ROOMS, floorPlanImage }) {
+export default function InteractiveFloorPlan({ property, rooms = DEFAULT_ROOMS, floorPlanImage, floorPlanImages }) {
     const [expanded, setExpanded] = useState(true);
     const [hovered, setHovered] = useState(null);
     const [selected, setSelected] = useState(null);
+    const [imageError, setImageError] = useState(false);
+    const [activePlanIdx, setActivePlanIdx] = useState(0);
 
     const toPath = (points) => {
         const coords = points.split(' ').map(p => p.split(',').map(Number));
@@ -61,10 +63,18 @@ export default function InteractiveFloorPlan({ property, rooms = DEFAULT_ROOMS, 
     const hoveredRoom = rooms.find(r => r.id === hovered);
     const activeRoom = selectedRoom || hoveredRoom;
 
-    if (floorPlanImage) {
+    // Support both multiple floorPlanImages and single floorPlanImage
+    const plans = (floorPlanImages && Array.isArray(floorPlanImages) && floorPlanImages.length > 0)
+        ? floorPlanImages.filter(p => typeof p === 'string' && !p.startsWith('blob:'))
+        : (floorPlanImage && typeof floorPlanImage === 'string' && !floorPlanImage.startsWith('blob:') ? [floorPlanImage] : []);
+
+    const currentPlan = plans[activePlanIdx] || plans[0];
+    const hasValidImage = Boolean(currentPlan && !imageError);
+
+    if (hasValidImage) {
         return (
             <div className="space-y-4">
-                <div className="bg-white border border-border rounded-xl overflow-hidden">
+                <div className="bg-white border border-border rounded-xl overflow-hidden shadow-sm">
                     <button
                         onClick={() => setExpanded(!expanded)}
                         className="w-full flex items-center justify-between p-4 hover:bg-muted/50 transition-colors"
@@ -72,6 +82,11 @@ export default function InteractiveFloorPlan({ property, rooms = DEFAULT_ROOMS, 
                         <div className="flex items-center gap-2">
                             <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${expanded ? '' : '-rotate-90'}`} />
                             <span className="font-bold text-foreground">{planName}</span>
+                            {plans.length > 1 && (
+                                <span className="text-xs bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full">
+                                    {plans.length} Diagrams
+                                </span>
+                            )}
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             {metaItems.map((m, i) => (
@@ -83,8 +98,31 @@ export default function InteractiveFloorPlan({ property, rooms = DEFAULT_ROOMS, 
                     </button>
                     {expanded && (
                         <div className="p-4 border-t border-border">
-                            <div className="relative aspect-[3/2] rounded-lg overflow-hidden border border-border bg-muted">
-                                <img src={floorPlanImage} alt="Floor plan" className="w-full h-full object-contain" />
+                            {plans.length > 1 && (
+                                <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
+                                    {plans.map((p, idx) => (
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setActivePlanIdx(idx)}
+                                            className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all whitespace-nowrap ${
+                                                activePlanIdx === idx
+                                                    ? 'bg-primary text-white border-primary shadow-sm'
+                                                    : 'bg-muted/60 hover:bg-muted text-muted-foreground border-border'
+                                            }`}
+                                        >
+                                            {idx === 0 ? '★ Main Layout' : `Level / Section ${idx + 1}`}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                            <div className="relative aspect-[3/2] rounded-lg overflow-hidden border border-border bg-slate-50 flex items-center justify-center">
+                                <img
+                                    src={currentPlan}
+                                    alt={`Floor plan ${activePlanIdx + 1}`}
+                                    onError={() => setImageError(true)}
+                                    className="w-full h-full object-contain p-2"
+                                />
                             </div>
                         </div>
                     )}

@@ -46,6 +46,7 @@ class Property(models.Model):
     amenities = models.JSONField(default=list, blank=True)
     images = models.JSONField(default=list, blank=True)
     floor_plan_image = models.CharField(max_length=1000, blank=True, null=True)
+    floor_plan_images = models.JSONField(default=list, blank=True)
     video_url = models.CharField(max_length=1000, blank=True, null=True)
     virtual_tour_url = models.CharField(max_length=1000, blank=True, null=True)
     
@@ -62,6 +63,21 @@ class Property(models.Model):
 
     class Meta:
         verbose_name_plural = 'Properties'
+
+    def save(self, *args, **kwargs):
+        # Keep floor_plan_images and floor_plan_image synchronized
+        if self.floor_plan_images and isinstance(self.floor_plan_images, list) and len(self.floor_plan_images) > 0:
+            if not self.floor_plan_image or self.floor_plan_image not in self.floor_plan_images:
+                self.floor_plan_image = self.floor_plan_images[0]
+        elif self.floor_plan_image and not self.floor_plan_images:
+            self.floor_plan_images = [self.floor_plan_image]
+
+        # Keep agent_name synchronized with agent
+        if self.agent and not self.agent_name:
+            full = f"{self.agent.first_name} {self.agent.last_name}".strip()
+            self.agent_name = full or self.agent.username
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home as HomeIcon, Menu, X, LayoutDashboard, Plus, LogOut, Shield, Building2 } from 'lucide-react';
+import { Home as HomeIcon, Menu, X, LayoutDashboard, Plus, LogOut, Shield, Building2, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,11 +22,12 @@ import {
 import { useAuth } from '@/lib/AuthContext';
 import { cmsService } from '@/api/services';
 
-export default function Navbar({ hideLogo = false, className = "" }) {
+export default function Navbar({ hideLogo = false, className = "", onSidebarToggle }) {
     const { user, isAuthenticated, logout } = useAuth();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [navLinks, setNavLinks] = useState([]);
     const navigate = useNavigate();
+    const isApprovedAgent = user?.role === 'agent' && user?.agent_status === 'approved';
 
     useEffect(() => {
         const fetchMenus = async () => {
@@ -85,25 +86,34 @@ export default function Navbar({ hideLogo = false, className = "" }) {
     const { siteSettings } = useAuth();
 
     return (
-        <header className={`sticky top-0 z-50 w-full bg-white/80 backdrop-blur-md ${className ? className : 'border-b border-border'}`}>
+        <header className={`sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md ${className ? className : 'border-b border-border'}`}>
             <div className={`mx-auto w-full px-4 sm:px-6 lg:px-8 ${hideLogo ? '' : 'max-w-7xl'}`}>
-                <div className="flex h-16 items-center justify-between">
+                <div className="flex h-20 items-center justify-between">
                     {!hideLogo ? (
-                        <Link to="/" className="flex items-center gap-2">
+                        <Link to="/" className="flex items-center shrink-0">
                             {siteSettings?.logo ? (
-                                <img src={siteSettings.logo} alt="Logo" className="h-8 w-auto" />
+                                <img 
+                                    src={siteSettings.logo} 
+                                    alt="Logo" 
+                                    className="h-11 sm:h-12 md:h-[48px] lg:h-[50px] w-auto max-w-[200px] object-contain object-left transition-all" 
+                                />
                             ) : (
                                 <>
-                                    <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary">
+                                    <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary">
                                         <HomeIcon className="w-5 h-5 text-primary-foreground" />
                                     </div>
-                                    <span className="text-xl font-bold tracking-tight">Estate<span className="text-primary">Hub</span></span>
+                                    <span className="text-2xl font-bold tracking-tight">Estate<span className="text-primary">Hub</span></span>
                                 </>
                             )}
                         </Link>
                     ) : (
                         <div className="flex items-center gap-4">
-                            <button className="md:hidden p-2 text-slate-500 hover:text-slate-700">
+                            <button 
+                                type="button"
+                                onClick={onSidebarToggle}
+                                className="md:hidden p-2 text-slate-600 hover:text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+                                aria-label="Toggle dashboard sidebar"
+                            >
                                 <Menu className="w-6 h-6" />
                             </button>
                         </div>
@@ -155,7 +165,7 @@ export default function Navbar({ hideLogo = false, className = "" }) {
                     <div className="hidden md:flex items-center gap-3">
                         {isAuthenticated ? (
                             <>
-                                {user?.role === 'agent' && (
+                                {isApprovedAgent && (
                                     <Button asChild variant="outline" size="sm">
                                         <Link to="/submit-property"><Plus className="w-4 h-4 mr-1" /> List Property</Link>
                                     </Button>
@@ -163,7 +173,10 @@ export default function Navbar({ hideLogo = false, className = "" }) {
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <button className="flex items-center gap-2 rounded-full border border-border p-0.5 pr-3 hover:bg-muted transition-colors">
-                                            <Avatar className="w-8 h-8"><AvatarFallback className="bg-primary text-primary-foreground text-xs">{userInitials}</AvatarFallback></Avatar>
+                                            <Avatar className="w-8 h-8">
+                                                {user?.avatar_url && <AvatarImage src={user.avatar_url} alt={user?.full_name || 'User'} className="object-cover" />}
+                                                <AvatarFallback className="bg-primary text-primary-foreground text-xs">{userInitials}</AvatarFallback>
+                                            </Avatar>
                                             <span className="text-sm font-medium max-w-[100px] truncate">{user?.full_name || 'User'}</span>
                                         </button>
                                     </DropdownMenuTrigger>
@@ -171,7 +184,10 @@ export default function Navbar({ hideLogo = false, className = "" }) {
                                         <DropdownMenuItem onClick={() => navigate('/dashboard')}>
                                             <LayoutDashboard className="w-4 h-4 mr-2" /> Dashboard
                                         </DropdownMenuItem>
-                                        {user?.role === 'agent' && (
+                                        <DropdownMenuItem onClick={() => navigate('/dashboard/messages')}>
+                                            <MessageSquare className="w-4 h-4 mr-2" /> Messages
+                                        </DropdownMenuItem>
+                                        {isApprovedAgent && (
                                             <DropdownMenuItem onClick={() => navigate('/submit-property')}>
                                                 <Plus className="w-4 h-4 mr-2" /> Submit Property
                                             </DropdownMenuItem>
@@ -191,6 +207,9 @@ export default function Navbar({ hideLogo = false, className = "" }) {
                         ) : (
                             <>
                                 <Button asChild variant="ghost" size="sm"><Link to="/login">Log In</Link></Button>
+                                <Button asChild variant="outline" size="sm" className="hidden lg:inline-flex border-primary/30 text-primary hover:bg-primary/5">
+                                    <Link to="/register-agent">Join as Agent</Link>
+                                </Button>
                                 <Button asChild size="sm"><Link to="/register">Sign Up</Link></Button>
                             </>
                         )}
@@ -229,7 +248,7 @@ export default function Navbar({ hideLogo = false, className = "" }) {
                             {isAuthenticated ? (
                                 <>
                                     <Button asChild variant="outline" className="w-full" onClick={() => setMobileOpen(false)}><Link to="/dashboard">Dashboard</Link></Button>
-                                    {user?.role === 'agent' && (
+                                    {isApprovedAgent && (
                                         <Button asChild variant="outline" className="w-full" onClick={() => setMobileOpen(false)}><Link to="/submit-property">Submit Property</Link></Button>
                                     )}
                                     {user?.role === 'admin' && (
@@ -240,7 +259,8 @@ export default function Navbar({ hideLogo = false, className = "" }) {
                             ) : (
                                 <>
                                     <Button asChild variant="outline" className="w-full"><Link to="/login" onClick={() => setMobileOpen(false)}>Log In</Link></Button>
-                                    <Button asChild className="w-full"><Link to="/register" onClick={() => setMobileOpen(false)}>Sign Up</Link></Button>
+                                    <Button asChild className="w-full"><Link to="/register" onClick={() => setMobileOpen(false)}>Sign Up (Customer)</Link></Button>
+                                    <Button asChild variant="secondary" className="w-full"><Link to="/register-agent" onClick={() => setMobileOpen(false)}>Register as Agent</Link></Button>
                                 </>
                             )}
                         </div>

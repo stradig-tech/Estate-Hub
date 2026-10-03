@@ -34,31 +34,39 @@ export default function PropertyCard({ property }) {
             setIsFavorited(false);
             setFavId(null);
         } else {
-            const fav = await favoriteService.create({
-                property_id: property.id,
-                property_title: property.title,
-                property_price: property.price,
-                property_image: property.images?.[0],
-                property_city: property.city,
-                property_state: property.state,
-                property_beds: property.bedrooms,
-                property_baths: property.bathrooms,
-                property_size: property.size,
-                property_type: property.property_type,
-                listing_type: property.listing_type,
-            });
+            const fav = await favoriteService.create({ property_id: property.id });
             setIsFavorited(true);
             setFavId(fav.id);
         }
     };
 
-    const image = property.images?.[0] || property.property_image || 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800';
+    const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800';
+    const rawImage = property.images?.[0] || property.property_image;
+    const initialImage = (rawImage && typeof rawImage === 'string' && !rawImage.startsWith('blob:'))
+        ? rawImage
+        : DEFAULT_IMAGE;
+
+    const [imgSrc, setImgSrc] = useState(initialImage);
+
+    useEffect(() => {
+        const raw = property.images?.[0] || property.property_image;
+        if (raw && typeof raw === 'string' && !raw.startsWith('blob:')) {
+            setImgSrc(raw);
+        } else {
+            setImgSrc(DEFAULT_IMAGE);
+        }
+    }, [property.images, property.property_image]);
 
     return (
         <Link to={`/properties/${property.id}`} className="block group">
             <Card className="overflow-hidden p-0 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                    <img src={image} alt={property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img
+                        src={imgSrc}
+                        alt={property.title}
+                        onError={() => setImgSrc(DEFAULT_IMAGE)}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                     <div className="absolute top-3 left-3 flex gap-2">
                         <Badge className="bg-primary text-primary-foreground">
                             {property.listing_type === 'for_sale' ? 'For Sale' : 'For Rent'}

@@ -9,8 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import StarRating from '@/components/StarRating';
 import { formatDate } from '@/lib/format';
 
-export default function ReviewSection({ agentId, agentName }) {
-    const { user, isAuthenticated } = useAuth();
+export default function ReviewSection({ agentId }) {
+    const { isAuthenticated } = useAuth();
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
@@ -39,10 +39,8 @@ export default function ReviewSection({ agentId, agentName }) {
         try {
             await reviewService.create({
                 agent_id: agentId,
-                agent_name: agentName,
                 rating,
                 comment,
-                reviewer_name: user?.full_name || 'Anonymous',
             });
             setComment('');
             setRating(5);

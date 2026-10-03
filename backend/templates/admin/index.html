@@ -1,0 +1,692 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin log %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block bodyclass %}{{ block.super }} dashboard{% endblock %}
+
+{% block content_title %} {% trans 'Executive Dashboard' %} {% endblock %}
+
+{% block breadcrumbs %}
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+        <li class="breadcrumb-item active">{% trans 'Dashboard' %}</li>
+    </ol>
+{% endblock %}
+
+{% block content %}
+<div class="eh-dashboard-wrapper w-100" style="padding-bottom: 2rem;">
+
+    <!-- 1. Top Welcome & Action Banner -->
+    <div class="card mb-4 border-0 eh-welcome-card" style="background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 14px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04); overflow: hidden;">
+        <div class="card-body p-4 text-dark">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div style="width: 52px; height: 52px; border-radius: 12px; background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #2563eb;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <h3 class="m-0 fw-bold" style="font-size: 1.35rem; letter-spacing: -0.02em; color: #0f172a !important;">
+                            {% trans "Welcome back," %} {{ request.user.first_name|default:request.user.username }}
+                        </h3>
+                        <p class="m-0 text-muted" style="font-size: 0.85rem; color: #64748b !important;">
+                            {% trans "Overview of real-time listings, agent performance, customer inquiries, and billing revenue." %}
+                        </p>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <a href="/admin/properties/property/add/" class="btn btn-sm eh-btn-add-property" style="background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff !important; font-weight: 600; border-radius: 8px; padding: 0.55rem 1.1rem; border: none; box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3); display: inline-flex; align-items: center; gap: 7px; text-decoration: none;">
+                        <i class="fas fa-plus-circle" style="color: #ffffff;"></i>
+                        <span style="color: #ffffff !important;">{% trans "Add Property" %}</span>
+                    </a>
+                    <a href="/admin/properties/property/?status__exact=pending" class="btn btn-sm eh-btn-pending" style="border-radius: 8px; font-weight: 600; padding: 0.55rem 1rem; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a !important; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                        <i class="fas fa-clock" style="color: #d97706; font-size: 0.9rem;"></i>
+                        <span style="color: #0f172a !important;">{% trans "Pending Review" %}</span>
+                        <span class="badge" style="background: #fef3c7; color: #b45309; font-weight: 700; font-size: 0.75rem; padding: 2px 7px; border-radius: 10px; margin-left: 2px;">{{ dash_pending_properties|default:0 }}</span>
+                    </a>
+                    <a href="{{ FRONTEND_URL|default:'http://localhost:5173' }}" target="_blank" class="btn btn-sm eh-btn-website" style="border-radius: 8px; font-weight: 600; padding: 0.55rem 1rem; border: 1.5px solid #cbd5e1; background: #ffffff; color: #0f172a !important; display: inline-flex; align-items: center; gap: 7px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                        <i class="fas fa-external-link-alt" style="color: #2563eb; font-size: 0.85rem;"></i>
+                        <span style="color: #0f172a !important;">{% trans "Live Website" %}</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Responsive KPI Metrics Cards -->
+    <div class="row g-3 mb-4">
+        <!-- Card 1: Properties -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm eh-metric-card" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #64748b;">
+                            {% trans "Total Properties" %}
+                        </span>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                            <i class="fas fa-city"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <h2 class="m-0 fw-bold" style="font-size: 2rem; color: #0f172a; letter-spacing: -0.03em;">
+                            {{ dash_total_properties|default:0 }}
+                        </h2>
+                        <span class="badge" style="background: #ecfdf5; color: #059669; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                            <i class="fas fa-arrow-up me-1"></i>Active
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: #f1f5f9 !important; font-size: 0.8rem;">
+                        <span class="text-muted"><strong class="text-success">{{ dash_active_properties|default:0 }}</strong> Active</span>
+                        <span class="text-muted">•</span>
+                        <span class="text-muted"><strong class="text-warning">{{ dash_pending_properties|default:0 }}</strong> Pending</span>
+                        <span class="text-muted">•</span>
+                        <a href="/admin/properties/property/" class="text-primary text-decoration-none fw-semibold ms-auto">
+                            Manage &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: Billing & Revenue -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm eh-metric-card" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #64748b;">
+                            {% trans "Total Revenue" %}
+                        </span>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <h2 class="m-0 fw-bold" style="font-size: 2rem; color: #0f172a; letter-spacing: -0.03em;">
+                            ${{ dash_total_revenue|floatformat:0 }}
+                        </h2>
+                        <span class="badge" style="background: #eff6ff; color: #2563eb; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                            {{ dash_paid_invoices|default:0 }} Paid
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: #f1f5f9 !important; font-size: 0.8rem;">
+                        <span class="text-muted"><strong class="text-success">{{ dash_total_invoices|default:0 }}</strong> Invoices</span>
+                        <span class="text-muted">•</span>
+                        <span class="text-muted"><strong class="text-warning">{{ dash_pending_invoices|default:0 }}</strong> Unpaid</span>
+                        <span class="text-muted">•</span>
+                        <a href="/admin/billing/invoice/" class="text-success text-decoration-none fw-semibold ms-auto">
+                            Bills &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3: Agents -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm eh-metric-card" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #64748b;">
+                            {% trans "Active Agents" %}
+                        </span>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #e0e7ff, #c7d2fe); color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <h2 class="m-0 fw-bold" style="font-size: 2rem; color: #0f172a; letter-spacing: -0.03em;">
+                            {{ dash_total_agents|default:0 }}
+                        </h2>
+                        <span class="badge" style="background: #eef2ff; color: #4f46e5; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                            {{ dash_total_agencies|default:1 }} Agency
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: #f1f5f9 !important; font-size: 0.8rem;">
+                        <span class="text-muted"><strong class="text-indigo">{{ dash_total_agents|default:0 }}</strong> Verified</span>
+                        <span class="text-muted">•</span>
+                        <span class="text-muted"><strong class="text-warning">{{ dash_pending_agents|default:0 }}</strong> Pending</span>
+                        <span class="text-muted">•</span>
+                        <a href="/admin/accounts/agent/" class="text-indigo text-decoration-none fw-semibold ms-auto" style="color: #4f46e5;">
+                            Agents &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4: Users & Inquiries -->
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm eh-metric-card" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0; transition: transform 0.2s ease, box-shadow 0.2s ease;">
+                <div class="card-body p-3 p-md-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <span class="text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.05em; color: #64748b;">
+                            {% trans "Total Users & Leads" %}
+                        </span>
+                        <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #7c3aed; display: flex; align-items: center; justify-content: center; font-size: 1.15rem;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-baseline gap-2 mb-2">
+                        <h2 class="m-0 fw-bold" style="font-size: 2rem; color: #0f172a; letter-spacing: -0.03em;">
+                            {{ dash_total_users|default:0 }}
+                        </h2>
+                        <span class="badge" style="background: #faf5ff; color: #7c3aed; font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                            {{ dash_total_inquiries|default:0 }} Inquiries
+                        </span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 pt-2 border-top" style="border-color: #f1f5f9 !important; font-size: 0.8rem;">
+                        <span class="text-muted"><strong class="text-purple">{{ dash_total_users|default:0 }}</strong> Accounts</span>
+                        <span class="text-muted">•</span>
+                        <span class="text-muted"><strong class="text-warning">{{ dash_pending_inquiries|default:0 }}</strong> New Leads</span>
+                        <span class="text-muted">•</span>
+                        <a href="/admin/accounts/user/" class="text-purple text-decoration-none fw-semibold ms-auto" style="color: #7c3aed;">
+                            Users &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Aesthetic Visual Charts Row -->
+    <div class="row g-3 mb-4">
+        <!-- Area Line Chart: Listings & Inquiries Growth -->
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
+                <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between border-bottom" style="border-color: #e2e8f0 !important;">
+                    <div>
+                        <h5 class="m-0 fw-bold text-dark" style="font-size: 1rem;">
+                            <i class="fas fa-chart-area text-primary me-2"></i>{% trans "Properties Growth & Inquiries Trend" %}
+                        </h5>
+                        <p class="m-0 text-muted" style="font-size: 0.78rem;">{% trans "Real-time analytics over the last 6 months" %}</p>
+                    </div>
+                    <div class="d-none d-sm-flex gap-2 align-items-center">
+                        <span class="badge" style="background: rgba(37, 99, 235, 0.1); color: #2563eb; font-weight: 600; font-size: 0.75rem;">
+                            ● Listings
+                        </span>
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #059669; font-weight: 600; font-size: 0.75rem;">
+                            ● Inquiries
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    <div style="position: relative; height: 280px; width: 100%;">
+                        <canvas id="ehGrowthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Donut Chart: Property Types Breakdown -->
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
+                <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between border-bottom" style="border-color: #e2e8f0 !important;">
+                    <div>
+                        <h5 class="m-0 fw-bold text-dark" style="font-size: 1rem;">
+                            <i class="fas fa-chart-pie text-indigo me-2" style="color: #4f46e5;"></i>{% trans "Property Types" %}
+                        </h5>
+                        <p class="m-0 text-muted" style="font-size: 0.78rem;">{% trans "Distribution across listings" %}</p>
+                    </div>
+                    <span class="badge bg-light text-dark border" style="font-size: 0.75rem;">{{ dash_total_properties|default:0 }} Total</span>
+                </div>
+                <div class="card-body p-3 p-md-4 d-flex flex-column align-items-center justify-content-center">
+                    <div style="position: relative; height: 200px; width: 200px; margin-bottom: 1rem;">
+                        <canvas id="ehTypeDonutChart"></canvas>
+                    </div>
+                    <!-- Type Pills -->
+                    <div class="d-flex flex-wrap justify-content-center gap-2 w-100" style="font-size: 0.78rem;">
+                        {% for pt in dash_prop_types %}
+                            <span class="badge border" style="background: #f8fafc; color: #334155; font-weight: 500; padding: 5px 9px;">
+                                <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: {{ pt.color }}; margin-right: 4px;"></span>
+                                {{ pt.label }}: <strong>{{ pt.count }}</strong>
+                            </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Data Tables Row: Recent Listings & Recent Bills -->
+    <div class="row g-3 mb-4">
+        <!-- Recent Property Listings Table -->
+        <div class="col-12 col-xl-7">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
+                <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between border-bottom" style="border-color: #e2e8f0 !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold text-dark" style="font-size: 0.95rem;">{% trans "Recent Property Listings" %}</h5>
+                    </div>
+                    <a href="/admin/properties/property/" class="btn btn-xs btn-outline-primary" style="font-size: 0.75rem; border-radius: 6px; padding: 4px 10px; font-weight: 600;">
+                        {% trans "View All" %} &rarr;
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                            <thead class="bg-light text-muted" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <tr>
+                                    <th class="ps-4 py-3">{% trans "Property" %}</th>
+                                    <th class="py-3">{% trans "Price" %}</th>
+                                    <th class="py-3">{% trans "Agent" %}</th>
+                                    <th class="py-3">{% trans "Status" %}</th>
+                                    <th class="pe-4 py-3 text-end">{% trans "Action" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for prop in dash_recent_properties %}
+                                <tr>
+                                    <td class="ps-4 py-2.5">
+                                        <div class="d-flex align-items-center gap-3">
+                                            {% if prop.images and prop.images|length > 0 %}
+                                                <img src="{{ prop.images.0 }}" alt="{{ prop.title }}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                            {% else %}
+                                                <div style="width: 44px; height: 44px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1rem;">
+                                                    <i class="fas fa-image"></i>
+                                                </div>
+                                            {% endif %}
+                                            <div style="min-width: 0;">
+                                                <a href="/admin/properties/property/{{ prop.id }}/change/" class="fw-semibold text-dark text-decoration-none text-truncate d-block" style="max-width: 220px;" title="{{ prop.title }}">
+                                                    {{ prop.title }}
+                                                </a>
+                                                <span class="text-muted" style="font-size: 0.75rem;">
+                                                    <i class="fas fa-map-marker-alt me-1 text-danger"></i>{{ prop.city|default:"Location" }}{% if prop.state %}, {{ prop.state }}{% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-2.5 fw-bold text-dark">
+                                        ${{ prop.price|floatformat:0 }}
+                                        <span class="d-block text-muted fw-normal" style="font-size: 0.72rem; text-transform: capitalize;">
+                                            {{ prop.listing_type|cut:"for_" }}
+                                        </span>
+                                    </td>
+                                    <td class="py-2.5">
+                                        <span class="fw-medium text-secondary">
+                                            {% if prop.agent_name %}{{ prop.agent_name }}{% elif prop.agent %}{{ prop.agent.username }}{% else %}Admin{% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="py-2.5">
+                                        {% if prop.status == 'active' %}
+                                            <span class="badge" style="background: #ecfdf5; color: #059669; font-weight: 600; padding: 4px 8px; border-radius: 6px;">● Active</span>
+                                        {% elif prop.status == 'pending' %}
+                                            <span class="badge" style="background: #fef3c7; color: #d97706; font-weight: 600; padding: 4px 8px; border-radius: 6px;">● Pending</span>
+                                        {% else %}
+                                            <span class="badge" style="background: #fee2e2; color: #dc2626; font-weight: 600; padding: 4px 8px; border-radius: 6px;">● Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="pe-4 py-2.5 text-end">
+                                        <a href="/admin/properties/property/{{ prop.id }}/change/" class="btn btn-xs btn-outline-secondary" style="border-radius: 6px; padding: 3px 8px; font-size: 0.75rem;">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        {% trans "No properties available." %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Bills / Invoices Table -->
+        <div class="col-12 col-xl-5">
+            <div class="card border-0 shadow-sm h-100" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
+                <div class="card-header bg-white py-3 px-4 d-flex align-items-center justify-content-between border-bottom" style="border-color: #e2e8f0 !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold text-dark" style="font-size: 0.95rem;">{% trans "Recent Invoices & Bills" %}</h5>
+                    </div>
+                    <a href="/admin/billing/invoice/" class="btn btn-xs btn-outline-success" style="font-size: 0.75rem; border-radius: 6px; padding: 4px 10px; font-weight: 600;">
+                        {% trans "View All" %} &rarr;
+                    </a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="-webkit-overflow-scrolling: touch;">
+                        <table class="table table-hover align-middle mb-0" style="font-size: 0.85rem;">
+                            <thead class="bg-light text-muted" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                                <tr>
+                                    <th class="ps-4 py-3">{% trans "Plan & Client" %}</th>
+                                    <th class="py-3">{% trans "Amount" %}</th>
+                                    <th class="pe-4 py-3 text-end">{% trans "Status" %}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for inv in dash_recent_invoices %}
+                                <tr>
+                                    <td class="ps-4 py-2.5">
+                                        <div class="fw-semibold text-dark text-truncate" style="max-width: 170px;">
+                                            {{ inv.plan_name|default:"Listing Plan" }}
+                                        </div>
+                                        <span class="text-muted" style="font-size: 0.75rem;">
+                                            {% if inv.user %}{{ inv.user.username }}{% else %}Client{% endif %}
+                                        </span>
+                                    </td>
+                                    <td class="py-2.5 fw-bold text-dark">
+                                        ${{ inv.amount|floatformat:2 }}
+                                    </td>
+                                    <td class="pe-4 py-2.5 text-end">
+                                        {% if inv.status == 'paid' %}
+                                            <span class="badge" style="background: #ecfdf5; color: #059669; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                                                <i class="fas fa-check-circle me-1"></i>Paid
+                                            </span>
+                                        {% else %}
+                                            <span class="badge" style="background: #fef3c7; color: #d97706; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                                                <i class="fas fa-hourglass-half me-1"></i>Pending
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-4 text-muted">
+                                        {% trans "No recent billing transactions." %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. App Modules & Recent Audit Activity Grid -->
+    <div class="row g-3">
+        <!-- App Models Directory -->
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between" style="border-color: #e2e8f0 !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: #f1f5f9; color: #334155; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="fas fa-cubes"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold text-dark" style="font-size: 0.95rem;">{% trans "Administration Modules" %}</h5>
+                    </div>
+                    <span class="text-muted" style="font-size: 0.78rem;">{% trans "Quick navigation & data entry" %}</span>
+                </div>
+                <div class="card-body p-3 p-md-4">
+                    {% get_side_menu using="app_list" as dashboard_list %}
+                    <div class="row g-3">
+                        {% for app in dashboard_list %}
+                        <div class="col-12 col-md-6">
+                            <div class="card h-100 border" style="border-radius: 10px; border-color: #e2e8f0 !important; background: #fafbfc;">
+                                <div class="card-header py-2.5 px-3 bg-white border-bottom d-flex align-items-center justify-content-between" style="border-color: #e2e8f0 !important;">
+                                    <h6 class="m-0 fw-bold text-dark" style="font-size: 0.88rem;">{{ app.name }}</h6>
+                                    <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">{{ app.models|length }} models</span>
+                                </div>
+                                <div class="card-body p-2">
+                                    <div class="list-group list-group-flush">
+                                        {% for model in app.models %}
+                                        <div class="list-group-item d-flex align-items-center justify-content-between px-2 py-1.5 border-0 bg-transparent">
+                                            <a href="{{ model.url|default:'#' }}" class="text-decoration-none fw-medium text-dark" style="font-size: 0.83rem;">
+                                                <i class="fas fa-chevron-right text-muted me-1.5" style="font-size: 0.65rem;"></i>
+                                                {{ model.name }}
+                                            </a>
+                                            <div class="eh-model-actions d-flex align-items-center" style="gap: 8px;">
+                                                {% if model.add_url %}
+                                                    <a href="{{ model.add_url }}" class="btn btn-xs eh-model-add-btn" style="border: 1.5px solid #10b981; color: #059669; background: #ffffff; width: 30px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; padding: 0;" title="{% trans 'Add' %}">
+                                                        <i class="fas fa-plus" style="font-size: 0.72rem;"></i>
+                                                    </a>
+                                                {% endif %}
+                                                {% if model.url %}
+                                                    <a href="{{ model.url }}" class="btn btn-xs eh-model-list-btn" style="border: 1.5px solid #cbd5e1; color: #64748b; background: #ffffff; width: 30px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; padding: 0;" title="{% trans 'Change' %}">
+                                                        <i class="fas fa-list" style="font-size: 0.72rem;"></i>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Actions Log -->
+        <div class="col-12 col-xl-4">
+            <div class="card border-0 shadow-sm" style="border-radius: 12px; background: #ffffff; border: 1px solid #e2e8f0;">
+                <div class="card-header bg-white py-3 px-4 border-bottom d-flex align-items-center justify-content-between" style="border-color: #e2e8f0 !important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width: 32px; height: 32px; border-radius: 8px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h5 class="m-0 fw-bold text-dark" style="font-size: 0.95rem;">{% trans "Audit & Recent Actions" %}</h5>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    {% get_admin_log 6 as admin_log for_user user %}
+                    {% if not admin_log %}
+                        <p class="text-muted text-center py-4 mb-0" style="font-size: 0.85rem;">{% trans "No recent actions recorded." %}</p>
+                    {% else %}
+                        <div class="timeline" style="margin: 0; padding: 0;">
+                            {% for entry in admin_log %}
+                                <div style="display: flex; gap: 10px; margin-bottom: 14px; position: relative;">
+                                    <div style="flex-shrink: 0; margin-top: 2px;">
+                                        {% if entry.is_change %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #eff6ff; color: #2563eb; font-size: 0.72rem;">
+                                                <i class="fas fa-pen"></i>
+                                            </span>
+                                        {% elif entry.is_deletion %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #fee2e2; color: #dc2626; font-size: 0.72rem;">
+                                                <i class="fas fa-trash"></i>
+                                            </span>
+                                        {% elif entry.is_addition %}
+                                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: #ecfdf5; color: #059669; font-size: 0.72rem;">
+                                                <i class="fas fa-plus"></i>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    <div style="flex: 1; min-width: 0; background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px; padding: 8px 10px;">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="fw-semibold text-dark text-truncate" style="font-size: 0.8rem; max-width: 140px;">
+                                                {% if entry.is_deletion or not entry.get_admin_url %}
+                                                    {{ entry.object_repr }}
+                                                {% else %}
+                                                    <a href="{{ entry.get_admin_url }}" class="text-dark text-decoration-none">{{ entry.object_repr }}</a>
+                                                {% endif %}
+                                            </span>
+                                            <span class="text-muted" style="font-size: 0.7rem;">
+                                                <i class="far fa-clock me-1"></i>{{ entry.action_time|timesince }} ago
+                                            </span>
+                                        </div>
+                                        {% if entry.model %}
+                                            <span class="badge bg-light text-muted border" style="font-size: 0.68rem; padding: 2px 6px;">
+                                                {{ entry.model }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Chart.js local script -->
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded');
+        return;
+    }
+
+    // 1. Listings & Inquiries Growth Chart (Area Line)
+    var ctxGrowth = document.getElementById('ehGrowthChart');
+    if (ctxGrowth) {
+        var months = {{ dash_chart_months_json|safe }};
+        var listings = {{ dash_chart_listings_json|safe }};
+        var inquiries = {{ dash_chart_inquiries_json|safe }};
+
+        new Chart(ctxGrowth, {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Properties Added',
+                        data: listings,
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#2563eb',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    },
+                    {
+                        label: 'Buyer Inquiries',
+                        data: inquiries,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index',
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#cbd5e1',
+                        padding: 10,
+                        cornerRadius: 8,
+                        boxPadding: 4,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f1f5f9',
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { size: 11 },
+                            precision: 0,
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false,
+                            drawBorder: false,
+                        },
+                        ticks: {
+                            color: '#94a3b8',
+                            font: { size: 11 },
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Property Types Breakdown Chart (Donut)
+    var ctxDonut = document.getElementById('ehTypeDonutChart');
+    if (ctxDonut) {
+        var labels = {{ dash_prop_type_labels_json|safe }};
+        var counts = {{ dash_prop_type_data_json|safe }};
+        var colors = {{ dash_prop_type_colors_json|safe }};
+
+        // Fallback if all 0
+        var total = counts.reduce(function(a, b) { return a + b; }, 0);
+        if (total === 0) {
+            counts = [1];
+            labels = ['No Listings Yet'];
+            colors = ['#cbd5e1'];
+        }
+
+        new Chart(ctxDonut, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: colors,
+                    borderWidth: 3,
+                    borderColor: '#ffffff',
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '72%',
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#0f172a',
+                        titleColor: '#ffffff',
+                        bodyColor: '#cbd5e1',
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.parsed + ' listings';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.eh-metric-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.03) !important;
+}
+@media (max-width: 767.98px) {
+    .eh-dashboard-wrapper {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
+    .eh-metric-card .card-body {
+        padding: 1rem !important;
+    }
+}
+</style>
+{% endblock %}

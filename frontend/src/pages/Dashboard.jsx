@@ -102,10 +102,45 @@ export default function Dashboard() {
     if (!isAuthenticated) return <Navigate to="/login" replace />;
 
     const pendingPropertiesCount = properties.filter(p => p.status === 'pending').length;
+    const isPendingAgent = user?.role === 'agent' && user?.agent_status === 'pending';
 
     return (
         <div className="max-w-[1400px] mx-auto space-y-6">
             
+            {/* Pending Agent Verification Card */}
+            {isPendingAgent && (
+                <Card className="p-6 border-amber-500/30 bg-amber-500/5">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                            <div className="w-12 h-12 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-600 shrink-0">
+                                <Clock className="w-6 h-6 animate-pulse" />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h2 className="text-lg font-bold text-slate-900">Agent Account Under Review</h2>
+                                    <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800">
+                                        Pending Admin Approval
+                                    </span>
+                                </div>
+                                <p className="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                                    Your application as an <strong>{user?.agency_name || 'Independent'}</strong> agent is currently being reviewed by administrators. 
+                                    While pending, you have limited access to manage your profile. 
+                                    Property submission and listing management will be enabled once approved.
+                                </p>
+                                <div className="flex items-center gap-6 mt-3 text-xs text-slate-500 flex-wrap">
+                                    <div>Agency Type: <strong className="text-slate-700">{user?.agency_name || 'Independent'}</strong></div>
+                                    <div>License: <strong className="text-slate-700">{user?.license_number || 'Not provided'}</strong></div>
+                                    <div>Phone: <strong className="text-slate-700">{user?.phone || 'Not provided'}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                        <Button asChild variant="outline" className="border-amber-400/50 hover:bg-amber-100/50 shrink-0">
+                            <Link to="/dashboard/profile">Edit Agent Profile</Link>
+                        </Button>
+                    </div>
+                </Card>
+            )}
+
             {/* Top Stat Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <StatCard 

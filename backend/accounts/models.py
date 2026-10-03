@@ -1,6 +1,41 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
+
+class CustomUserManager(UserManager):
+    """Custom user manager ensuring superuser created from terminal (createsuperuser) has role='admin'."""
+    def create_superuser(self, username, email=None, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', 'admin')
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+
+        return super().create_superuser(username, email, password, **extra_fields)
+
+
+class Agency(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True, default="Estate Hub")
+    email = models.EmailField(blank=True, null=True)
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    logo = models.ImageField(upload_to='agencies/', blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Agency"
+        verbose_name_plural = "Agencies"
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -12,7 +47,19 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='buyer')
     phone = models.CharField(max_length=20, blank=True, null=True)
     bio = models.TextField(blank=True, null=True)
+    agency = models.ForeignKey('Agency', on_delete=models.SET_NULL, null=True, blank=True, related_name='agents')
     agency_name = models.CharField(max_length=255, blank=True, null=True)
+    agent_title = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True, 
+        default='Administrative Staff',
+        help_text="Designation/Role title (e.g. Administrative Staff, Senior Real Estate Agent)"
+    )
+    is_featured_agent = models.BooleanField(
+        default=False,
+        help_text="Feature this agent in the 'Meet Our Agents' section on homepage"
+    )
     avatar_url = models.CharField(max_length=1000, blank=True, null=True)
     license_number = models.CharField(max_length=100, blank=True, null=True)
     subscription_plan = models.CharField(max_length=100, default='Free')
@@ -24,8 +71,49 @@ class User(AbstractUser):
     )
     subscription_status = models.CharField(max_length=20, choices=SUB_STATUS_CHOICES, default='free')
 
+    AGENT_STATUS_CHOICES = (
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    )
+    agent_status = models.CharField(
+        max_length=20,
+        choices=AGENT_STATUS_CHOICES,
+        default='approved',
+        help_text="Approval status for agents. Unapproved agents cannot list properties."
+    )
+
+    objects = CustomUserManager()
+
+    def save(self, *args, **kwargs):
+        # Keep the app role in sync with Django's superuser flag (e.g. `createsuperuser`).
+        if self.is_superuser and self.role != 'admin':
+            self.role = 'admin'
+        if self.role == 'admin':
+            self.agent_status = 'approved'
+        if self.agency and not self.agency_name:
+            self.agency_name = self.agency.name
+        elif self.agency_name and not self.agency:
+            agency_obj, _ = Agency.objects.get_or_create(name=self.agency_name.strip())
+            self.agency = agency_obj
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.username
+
+
+class AgentManager(CustomUserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(role='agent')
+
+
+class Agent(User):
+    objects = AgentManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = "Agent"
+        verbose_name_plural = "Agents"
 
 
 class Favorite(models.Model):

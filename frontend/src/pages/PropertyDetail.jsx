@@ -14,6 +14,7 @@ import MortgageCalculator from '@/components/properties/MortgageCalculator';
 import PropertyCard from '@/components/properties/PropertyCard';
 import { Bed, Bath, Maximize, MapPin, Calendar, Car, CheckCircle, School, Hospital, UtensilsCrossed, ShoppingBag, Bus, TreePine, Play, Box, Eye } from 'lucide-react';
 import { formatPrice, formatNumber, PROPERTY_TYPES } from '@/lib/format';
+import { useAuth } from '@/lib/AuthContext';
 
 const PLACE_ICONS = { school: School, hospital: Hospital, restaurant: UtensilsCrossed, shopping: ShoppingBag, transit: Bus, park: TreePine };
 
@@ -25,6 +26,7 @@ function getYouTubeEmbed(url) {
 
 export default function PropertyDetail() {
     const { id } = useParams();
+    const { user } = useAuth();
     const [property, setProperty] = useState(null);
     const [nearby, setNearby] = useState([]);
     const [similar, setSimilar] = useState([]);
@@ -34,11 +36,22 @@ export default function PropertyDetail() {
     const [inquirySent, setInquirySent] = useState(false);
 
     useEffect(() => {
+        if (user) {
+            setInquiry(prev => ({
+                ...prev,
+                name: prev.name || user.full_name || '',
+                email: prev.email || user.email || '',
+                phone: prev.phone || user.phone || '',
+            }));
+        }
+    }, [user]);
+
+    useEffect(() => {
         const load = async () => {
             try {
                 const p = await propertyService.get(id);
                 setProperty(p);
-                propertyService.update(id, { views: (p.views || 0) + 1 }).catch(() => { });
+                propertyService.recordView(id).catch(() => { });
                 nearbyPlaceService.list({ property_id: id }).then(data => setNearby(data.results || data)).catch(() => { });
                 if (p.city) {
                     propertyService.list({ status: 'active', city: p.city, limit: 4 })
@@ -63,8 +76,6 @@ export default function PropertyDetail() {
         try {
             await inquiryService.create({
                 property_id: property.id,
-                property_title: property.title,
-                agent_id: property.agent_id,
                 ...inquiry,
             });
             // Email is now sent via Django backend signals or explicitly on create
@@ -146,7 +157,7 @@ export default function PropertyDetail() {
                     <div>
                         <h2 className="text-2xl font-bold text-foreground mb-1">Floor Plan</h2>
                         <p className="text-sm text-muted-foreground mb-4">Click on any room in the floor plan to see detailed information about it.</p>
-                        <InteractiveFloorPlan property={property} floorPlanImage={property.floor_plan_image} />
+                        <InteractiveFloorPlan property={property} floorPlanImage={property.floor_plan_image} floorPlanImages={property.floor_plan_images} />
                     </div>
 
                     {/* Media Section — video & virtual tour */}
@@ -220,10 +231,13 @@ export default function PropertyDetail() {
                     <Card className="p-5">
                         <h3 className="font-semibold mb-3">Contact Agent</h3>
                         {inquirySent ? (
-                            <div className="text-center py-6">
-                                <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-3" />
-                                <p className="font-medium">Inquiry Sent!</p>
-                                <p className="text-sm text-muted-foreground">The agent will contact you soon.</p>
+                            <div className="text-center py-6 space-y-3">
+                                <CheckCircle className="w-12 h-12 mx-auto text-green-500 mb-1" />
+                                <p className="font-semibold text-slate-900">Inquiry Sent!</p>
+                                <p className="text-xs text-muted-foreground">The listing agent has received your inquiry. You can now chat directly with them in Messages.</p>
+                                <Button asChild size="sm" className="mt-2">
+                                    <Link to="/dashboard/messages">Open Messages</Link>
+                                </Button>
                             </div>
                         ) : (
                             <form onSubmit={handleInquiry} className="space-y-3">

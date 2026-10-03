@@ -45,9 +45,18 @@ export default function InquiriesTab({ user }) {
                                 {inq.phone && <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5" /> {inq.phone}</span>}
                             </div>
                             <p className="text-sm mt-2">{inq.message}</p>
-                            <div className="flex items-center gap-2 pt-2">
-                                <Link to={`/properties/${inq.property_id}`} className="text-xs text-primary hover:underline">{inq.property_title}</Link>
-                                <span className="text-xs text-muted-foreground">· {formatDate(inq.created_date)}</span>
+                            <div className="flex items-center justify-between gap-2 pt-2 flex-wrap">
+                                <div className="flex items-center gap-2">
+                                    <Link to={`/properties/${inq.property_id}`} className="text-xs text-primary hover:underline">{inq.property_title}</Link>
+                                    <span className="text-xs text-muted-foreground">· {formatDate(inq.created_date)}</span>
+                                </div>
+                                <Link 
+                                    to={`/dashboard/messages?inquiry=${inq.id}`}
+                                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-md transition-colors"
+                                >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                    Open Chat
+                                </Link>
                             </div>
                         </div>
                     </div>

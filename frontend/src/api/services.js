@@ -10,8 +10,8 @@ export const authService = {
         return response.data;
     },
     
-    register: async (email, password) => {
-        const response = await apiClient.post('auth/register/', { email, password });
+    register: async (email, password, extra = {}) => {
+        const response = await apiClient.post('auth/register/', { email, password, ...extra });
         if (response.data.access) {
             localStorage.setItem('access_token', response.data.access);
             localStorage.setItem('refresh_token', response.data.refresh);
@@ -33,6 +33,19 @@ export const authService = {
         const response = await apiClient.patch('auth/me/', data);
         return response.data;
     }
+};
+
+export const fileService = {
+    upload: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await apiClient.post('upload/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
 };
 
 export const propertyService = {
@@ -58,6 +71,25 @@ export const propertyService = {
     
     delete: async (id) => {
         const response = await apiClient.delete(`properties/${id}/`);
+        return response.data;
+    },
+
+    // Server-side, throttled view counter (replaces client PATCH of `views`).
+    recordView: async (id) => {
+        const response = await apiClient.post(`properties/${id}/view/`);
+        return response.data;
+    }
+};
+
+// Public, privacy-safe agent directory (no email/phone). Admin-only data lives in userService.
+export const agentService = {
+    list: async (params = {}) => {
+        const response = await apiClient.get('agents/', { params });
+        return response.data;
+    },
+
+    get: async (id) => {
+        const response = await apiClient.get(`agents/${id}/`);
         return response.data;
     }
 };
@@ -108,9 +140,28 @@ export const inquiryService = {
         const response = await apiClient.get('inquiries/', { params });
         return response.data;
     },
-    
+    get: async (id) => {
+        const response = await apiClient.get(`inquiries/${id}/`);
+        return response.data;
+    },
     create: async (data) => {
         const response = await apiClient.post('inquiries/', data);
+        return response.data;
+    },
+    reply: async (id, message) => {
+        const response = await apiClient.post(`inquiries/${id}/reply/`, { message });
+        return response.data;
+    },
+    messages: async (id) => {
+        const response = await apiClient.get(`inquiries/${id}/messages/`);
+        return response.data;
+    },
+    update: async (id, data) => {
+        const response = await apiClient.patch(`inquiries/${id}/`, data);
+        return response.data;
+    },
+    delete: async (id) => {
+        const response = await apiClient.delete(`inquiries/${id}/`);
         return response.data;
     }
 };

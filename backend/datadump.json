@@ -1,0 +1,1101 @@
+[
+{
+  "model": "accounts.agency",
+  "pk": "33b5f63c-0848-45bc-b1b2-390a9021fe7b",
+  "fields": {
+    "name": "Estate Hub",
+    "email": "support@estatehub.com",
+    "phone": "+1 (800) 555-0199",
+    "address": "123 Business Avenue, Suite 100, New York, NY",
+    "website": null,
+    "logo": "",
+    "description": "Premier full-service real estate brokerage under Estate Hub.",
+    "created_at": "2026-10-03T11:23:06.148Z"
+  }
+},
+{
+  "model": "accounts.agency",
+  "pk": "458a8078-259a-485c-8fb5-a6aa4a414b16",
+  "fields": {
+    "name": "Independent",
+    "email": null,
+    "phone": null,
+    "address": null,
+    "website": null,
+    "logo": "",
+    "description": null,
+    "created_at": "2026-10-03T11:30:08.291Z"
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$LsziB874PtlSzedLPTcHdP$MNwtVogRFHBN66HAQs4Pakt7Jc4tf9ruiBiCWepXvIs=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "chris.patt",
+    "first_name": "Chris",
+    "last_name": "Patt",
+    "email": "chris.patt@estatehub.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-03T11:23:06.154Z",
+    "role": "agent",
+    "phone": "+1 (555) 234-5678",
+    "bio": "Administrative Staff",
+    "agency": "33b5f63c-0848-45bc-b1b2-390a9021fe7b",
+    "agency_name": "Estate Hub",
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": true,
+    "avatar_url": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80",
+    "license_number": null,
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$VHj3lNp4XJhfX1uLBzwCoh$PJcpEW+0Pvso6wmc+XT0ck0CO+/hXESj5aF7EeH7Ofc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "esther.howard",
+    "first_name": "Esther",
+    "last_name": "Howard",
+    "email": "esther.howard@estatehub.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-03T11:23:06.919Z",
+    "role": "agent",
+    "phone": "+1 (555) 345-6789",
+    "bio": "Administrative Staff",
+    "agency": "33b5f63c-0848-45bc-b1b2-390a9021fe7b",
+    "agency_name": "Estate Hub",
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": true,
+    "avatar_url": "https://images.unsplash.com/photo-1600486913747-55e5470d6f40?w=400&q=80",
+    "license_number": null,
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$35dljikROkeXTHjoPyeMTl$wqEieCI46MjMe8QbZQ/YrGkDYaiKfBMjWqzSvx8jYVc=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sifatss@gmail.com",
+    "first_name": "Sifat",
+    "last_name": "Rahman",
+    "email": "sifatss@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-03T09:31:00Z",
+    "role": "agent",
+    "phone": "01534727582",
+    "bio": "",
+    "agency": "458a8078-259a-485c-8fb5-a6aa4a414b16",
+    "agency_name": "Independent",
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": false,
+    "avatar_url": "http://localhost:8000/media/uploads/e47d34bd1c6f4496b73ea5908b0fbb7d.png",
+    "license_number": "RE-109405",
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$xspKcZGYALc5422n3oUGbx$fcjYuX/d8JCO4jg5+5sw+X3A+71VujvmddqJ36gW2zA=",
+    "last_login": "2026-10-03T13:19:05.234Z",
+    "is_superuser": true,
+    "username": "SuperAdmin",
+    "first_name": "Mansib",
+    "last_name": "Khan",
+    "email": "maahsankhan93@gmail.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-10-03T07:15:36Z",
+    "role": "admin",
+    "phone": null,
+    "bio": "",
+    "agency": null,
+    "agency_name": null,
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": false,
+    "avatar_url": null,
+    "license_number": null,
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$RKtjkwhAxxbEyhHlPuWRDb$GulbmV2etLWdn7IYnvRq7xP7nqIvEn/+C2L/Vf32CJM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "robert.fox",
+    "first_name": "Robert",
+    "last_name": "Fox",
+    "email": "robert.fox@estatehub.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-03T11:23:08.404Z",
+    "role": "agent",
+    "phone": "+1 (555) 567-8901",
+    "bio": "Administrative Staff",
+    "agency": "33b5f63c-0848-45bc-b1b2-390a9021fe7b",
+    "agency_name": "Estate Hub",
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": true,
+    "avatar_url": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&q=80",
+    "license_number": null,
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$OFwRNIXOyqaJCU79g5l91R$QghKJl9ji9ftTAxu0+x+jTq37Ycn7vdxxUDogrePiR4=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "darrell.steward",
+    "first_name": "Darrell",
+    "last_name": "Steward",
+    "email": "darrell.steward@estatehub.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-03T11:23:07.655Z",
+    "role": "agent",
+    "phone": "+1 (555) 456-7890",
+    "bio": "Administrative Staff",
+    "agency": "33b5f63c-0848-45bc-b1b2-390a9021fe7b",
+    "agency_name": "Estate Hub",
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": true,
+    "avatar_url": "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80",
+    "license_number": null,
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$ftFu2xKLegZQidQgG6VSHQ$hPf5UR5qbkU4utbtmSUQP/tSK9jBv8E2RFAGlgsduZ0=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "admin",
+    "first_name": "",
+    "last_name": "",
+    "email": "admin@estatehub.com",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-10-03T12:38:22.392Z",
+    "role": "admin",
+    "phone": null,
+    "bio": null,
+    "agency": null,
+    "agency_name": null,
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": false,
+    "avatar_url": null,
+    "license_number": null,
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "accounts.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$sLF9Es5bLwOHZtCbI1AffH$m9Sh8gRTlqRCrW25iSosdvSR2OjKaBbRfmsa+bHffJo=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "james@gmail.com",
+    "first_name": "James",
+    "last_name": "Nob",
+    "email": "james@gmail.com",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2026-10-03T10:23:23.710Z",
+    "role": "buyer",
+    "phone": "+32158545752",
+    "bio": "",
+    "agency": null,
+    "agency_name": "",
+    "agent_title": "Administrative Staff",
+    "is_featured_agent": false,
+    "avatar_url": "http://localhost:8000/media/uploads/b5a6237aec924904bf87ef1f3f588b0d.jpg",
+    "license_number": "",
+    "subscription_plan": "Free",
+    "subscription_status": "free",
+    "agent_status": "approved",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "09ffdeed-006f-43f8-b34d-8ef39dded931",
+  "fields": {
+    "title": "Modern Townhouse with Panoramic City Views",
+    "description": "Stunning contemporary townhouse featuring open layout, floor-to-ceiling windows, private rooftop terrace, and smart home system.",
+    "price": "750000.00",
+    "listing_type": "for_sale",
+    "property_type": "townhouse",
+    "bedrooms": 3,
+    "bathrooms": 3,
+    "size": 2200,
+    "lot_size": 2500,
+    "address": "742 Evergreen Terrace",
+    "city": "New York",
+    "state": "NY",
+    "zip_code": "10001",
+    "latitude": null,
+    "longitude": null,
+    "status": "rejected",
+    "amenities": [
+      "Air Conditioning",
+      "Balcony",
+      "Garage",
+      "Security System",
+      "Smart Home"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800"
+    ],
+    "floor_plan_image": null,
+    "floor_plan_images": [],
+    "video_url": null,
+    "virtual_tour_url": null,
+    "agent": [
+      "chris.patt"
+    ],
+    "agent_name": "Chris Patt",
+    "views": 2,
+    "featured": true,
+    "year_built": 2022,
+    "parking": 2,
+    "rejection_note": "Rejected by administrator.",
+    "created_date": "2026-10-03T11:30:12.913Z"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "15ee4075-038f-44fc-82e4-f35c3a792cb9",
+  "fields": {
+    "title": "Test Upload Prop",
+    "description": null,
+    "price": "100000.00",
+    "listing_type": "for_sale",
+    "property_type": "house",
+    "bedrooms": 0,
+    "bathrooms": 0,
+    "size": 0,
+    "lot_size": null,
+    "address": null,
+    "city": null,
+    "state": null,
+    "zip_code": null,
+    "latitude": null,
+    "longitude": null,
+    "status": "pending",
+    "amenities": [],
+    "images": [
+      "https://test.com/existing.jpg"
+    ],
+    "floor_plan_image": null,
+    "floor_plan_images": [],
+    "video_url": null,
+    "virtual_tour_url": null,
+    "agent": null,
+    "agent_name": null,
+    "views": 0,
+    "featured": false,
+    "year_built": null,
+    "parking": 0,
+    "rejection_note": null,
+    "created_date": "2026-10-03T10:15:48.464Z"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "5548175d-cee4-4cd9-8683-6aa835e7a25c",
+  "fields": {
+    "title": "Luxury Waterfront Villa with Private Pool",
+    "description": "Magnificent waterfront property offering breathtaking sunset views, infinity pool, lush tropical gardens, and private boat dock.",
+    "price": "1250000.00",
+    "listing_type": "for_sale",
+    "property_type": "house",
+    "bedrooms": 5,
+    "bathrooms": 4,
+    "size": 3800,
+    "lot_size": 6000,
+    "address": "108 Ocean Boulevard",
+    "city": "Miami",
+    "state": "FL",
+    "zip_code": "33139",
+    "latitude": null,
+    "longitude": null,
+    "status": "active",
+    "amenities": [
+      "Swimming Pool",
+      "Waterfront View",
+      "Garden",
+      "Wine Cellar",
+      "Gated Security"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800"
+    ],
+    "floor_plan_image": null,
+    "floor_plan_images": [],
+    "video_url": null,
+    "virtual_tour_url": null,
+    "agent": [
+      "esther.howard"
+    ],
+    "agent_name": "Esther Howard",
+    "views": 0,
+    "featured": true,
+    "year_built": 2023,
+    "parking": 3,
+    "rejection_note": null,
+    "created_date": "2026-10-03T11:30:12.918Z"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "631dc4cc-3748-4704-8405-0abf749f9b0d",
+  "fields": {
+    "title": "Casa Lomas de Machalí Machas",
+    "description": "Located around an hour away from Paris, between the Perche and the Iton valley, in a beautiful wooded park bordered by a charming stream, this country property immediately seduces with its bucolic and soothing environment.\r\n\r\nAn ideal choice for sports and leisure enthusiasts who will be able to take advantage of its swimming pool (11m x 5m), tennis court, gym and sauna",
+    "price": "7500.00",
+    "listing_type": "for_sale",
+    "property_type": "house",
+    "bedrooms": 9,
+    "bathrooms": 3,
+    "size": 900,
+    "lot_size": 2000,
+    "address": "145 Brooklyn Ave, Califonia",
+    "city": "New York City",
+    "state": "New York",
+    "zip_code": null,
+    "latitude": null,
+    "longitude": null,
+    "status": "active",
+    "amenities": [
+      "Pool",
+      "Garden",
+      "Wifi",
+      "Balcony",
+      "Parking",
+      "Air Conditioning",
+      "Gym",
+      "Garage",
+      "Pet Friendly",
+      "Fireplace",
+      "Security System",
+      "Furnished",
+      "Heating",
+      "Solar Panels",
+      "Smart Home"
+    ],
+    "images": [
+      "http://localhost:8000/media/uploads/8daa768d7c7f4e7ea4a26de212075103.jpg",
+      "http://localhost:8000/media/uploads/fdf4f75e17af496b9fff4e55ef2a4f04.jpg",
+      "http://localhost:8000/media/uploads/ff7eb311a23048998ccd8812f4f2ce70.jpg"
+    ],
+    "floor_plan_image": "http://localhost:8000/media/uploads/0f5d7da94195480f9f1f99537a314845.png",
+    "floor_plan_images": [
+      "http://localhost:8000/media/uploads/0f5d7da94195480f9f1f99537a314845.png",
+      "http://localhost:8000/media/uploads/dc60eae3300e4506a2287e6d61cab5f1.png"
+    ],
+    "video_url": null,
+    "virtual_tour_url": null,
+    "agent": [
+      "sifatss@gmail.com"
+    ],
+    "agent_name": "Sifat Rahman",
+    "views": 6,
+    "featured": true,
+    "year_built": 2024,
+    "parking": 1,
+    "rejection_note": "",
+    "created_date": "2026-10-03T09:43:51.348Z"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "95a0f44b-9032-4eb5-9010-3cfeb06cd68f",
+  "fields": {
+    "title": "Contemporary Hillside Residence with Garden",
+    "description": "Elegantly designed family home nestled in peaceful hills, featuring expansive deck, open chef kitchen, master suite, and solar panels.",
+    "price": "620000.00",
+    "listing_type": "for_sale",
+    "property_type": "house",
+    "bedrooms": 4,
+    "bathrooms": 3,
+    "size": 2750,
+    "lot_size": 4500,
+    "address": "890 Hillcrest Lane",
+    "city": "Austin",
+    "state": "TX",
+    "zip_code": "78701",
+    "latitude": null,
+    "longitude": null,
+    "status": "active",
+    "amenities": [
+      "Solar Panels",
+      "Fireplace",
+      "Hardwood Floors",
+      "Backyard",
+      "Attached Garage"
+    ],
+    "images": [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800"
+    ],
+    "floor_plan_image": null,
+    "floor_plan_images": [],
+    "video_url": null,
+    "virtual_tour_url": null,
+    "agent": [
+      "robert.fox"
+    ],
+    "agent_name": "Robert Fox",
+    "views": 1,
+    "featured": true,
+    "year_built": 2021,
+    "parking": 2,
+    "rejection_note": null,
+    "created_date": "2026-10-03T11:30:12.925Z"
+  }
+},
+{
+  "model": "properties.property",
+  "pk": "9e392eb2-7701-4835-942b-20e3ef3634a0",
+  "fields": {
+    "title": "Chic Downtown Loft with Industrial Accents",
+    "description": "Expansive loft in the heart of downtown boasting exposed brick, soaring 14-foot ceilings, chef kitchen, and dedicated workspace.",
+    "price": "3400.00",
+    "listing_type": "for_rent",
+    "property_type": "apartment",
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "size": 1350,
+    "lot_size": 0,
+    "address": "452 Broadway, Loft 4B",
+    "city": "Los Angeles",
+    "state": "CA",
+    "zip_code": "90013",
+    "latitude": null,
+    "longitude": null,
+    "status": "active",
+    "amenities": [
+      "Gym",
+      "High Ceilings",
+      "Washer/Dryer",
+      "Doorman",
+      "Wifi",
+      "Garden",
+      "Pool",
+      "Balcony",
+      "Parking",
+      "Security System",
+      "Furnished",
+      "Air Conditioning",
+      "Heating",
+      "Garage",
+      "Fireplace",
+      "Pet Friendly"
+    ],
+    "images": [
+      "http://localhost:8000/media/uploads/66e0054e01c14e2a874a3e0b1fd9ca62.jpg"
+    ],
+    "floor_plan_image": "http://localhost:8000/media/uploads/aaae798a297a443ea8552d060181952c.png",
+    "floor_plan_images": [
+      "http://localhost:8000/media/uploads/aaae798a297a443ea8552d060181952c.png"
+    ],
+    "video_url": "",
+    "virtual_tour_url": "",
+    "agent": [
+      "darrell.steward"
+    ],
+    "agent_name": "Darrell Steward",
+    "views": 1,
+    "featured": true,
+    "year_built": 2020,
+    "parking": 1,
+    "rejection_note": null,
+    "created_date": "2026-10-03T11:30:12.921Z"
+  }
+},
+{
+  "model": "billing.invoice",
+  "pk": "2d61855d-df97-45f3-a24a-bef3db85f42d",
+  "fields": {
+    "amount": "99.00",
+    "status": "paid",
+    "plan_name": "Starter Listing Pack",
+    "user": [
+      "chris.patt"
+    ],
+    "created_date": "2026-10-03T13:02:51.735Z"
+  }
+},
+{
+  "model": "billing.invoice",
+  "pk": "5701956f-2739-4950-a2ab-5aa579276359",
+  "fields": {
+    "amount": "49.00",
+    "status": "pending",
+    "plan_name": "Featured Listing Booster",
+    "user": [
+      "darrell.steward"
+    ],
+    "created_date": "2026-10-03T13:02:51.740Z"
+  }
+},
+{
+  "model": "billing.invoice",
+  "pk": "5a569c98-d9b6-4dce-b881-61c50f767473",
+  "fields": {
+    "amount": "299.00",
+    "status": "paid",
+    "plan_name": "Agency Pro Tier",
+    "user": [
+      "esther.howard"
+    ],
+    "created_date": "2026-10-03T13:02:51.738Z"
+  }
+},
+{
+  "model": "billing.invoice",
+  "pk": "5f7f3434-f55a-4d7f-a2e0-aa7b8e9b2f11",
+  "fields": {
+    "amount": "199.00",
+    "status": "paid",
+    "plan_name": "Professional Agent Plan",
+    "user": [
+      "sifatss@gmail.com"
+    ],
+    "created_date": "2026-10-03T13:02:51.728Z"
+  }
+},
+{
+  "model": "billing.invoice",
+  "pk": "7a97cad2-b6df-456a-951c-37fd01bbb1da",
+  "fields": {
+    "amount": "199.00",
+    "status": "paid",
+    "plan_name": "Professional Agent Plan",
+    "user": [
+      "sifatss@gmail.com"
+    ],
+    "created_date": "2026-10-03T13:02:51.743Z"
+  }
+},
+{
+  "model": "support.inquiry",
+  "pk": "ee4a76b4-39c3-4e07-b19f-fde8ee162192",
+  "fields": {
+    "name": "James",
+    "email": "james@gmail.com",
+    "phone": "01686492382",
+    "message": "I am  interested",
+    "property": "631dc4cc-3748-4704-8405-0abf749f9b0d",
+    "agent": [
+      "sifatss@gmail.com"
+    ],
+    "customer": [
+      "james@gmail.com"
+    ],
+    "status": "replied",
+    "created_date": "2026-10-03T10:29:26.925Z",
+    "updated_date": "2026-10-03T10:56:18.379Z"
+  }
+},
+{
+  "model": "support.inquirymessage",
+  "pk": "10d462e0-a374-44c3-aada-030cbe63bf46",
+  "fields": {
+    "inquiry": "ee4a76b4-39c3-4e07-b19f-fde8ee162192",
+    "sender": [
+      "sifatss@gmail.com"
+    ],
+    "sender_name": "Sifat Rahman",
+    "sender_email": "sifatss@gmail.com",
+    "sender_role": "agent",
+    "message": "📞 I would be happy to discuss this over a call. When is a good time for you?",
+    "created_date": "2026-10-03T10:56:18.367Z"
+  }
+},
+{
+  "model": "support.inquirymessage",
+  "pk": "cdea61ae-6c70-46e2-b23d-ede42e01d68e",
+  "fields": {
+    "inquiry": "ee4a76b4-39c3-4e07-b19f-fde8ee162192",
+    "sender": [
+      "james@gmail.com"
+    ],
+    "sender_name": "James Nob",
+    "sender_email": "james@gmail.com",
+    "sender_role": "customer",
+    "message": "Hi Sifat, Saturday 2 PM works great for viewing!",
+    "created_date": "2026-10-03T10:45:24.261Z"
+  }
+},
+{
+  "model": "support.inquirymessage",
+  "pk": "e040ec9f-6c43-475d-bf0b-fedbdef7fc6d",
+  "fields": {
+    "inquiry": "ee4a76b4-39c3-4e07-b19f-fde8ee162192",
+    "sender": [
+      "james@gmail.com"
+    ],
+    "sender_name": "James Nob",
+    "sender_email": "james@gmail.com",
+    "sender_role": "customer",
+    "message": "📋 Could you share more information about the pricing and terms?",
+    "created_date": "2026-10-03T10:55:57.562Z"
+  }
+},
+{
+  "model": "support.inquirymessage",
+  "pk": "f3903761-1f9e-43f6-9305-9e811866531a",
+  "fields": {
+    "inquiry": "ee4a76b4-39c3-4e07-b19f-fde8ee162192",
+    "sender": [
+      "sifatss@gmail.com"
+    ],
+    "sender_name": "Sifat Rahman",
+    "sender_email": "sifatss@gmail.com",
+    "sender_role": "agent",
+    "message": "👋 Hello! Thank you for reaching out. When would you like to schedule a viewing?",
+    "created_date": "2026-10-03T10:40:14.717Z"
+  }
+},
+{
+  "model": "cms.sitesetting",
+  "pk": 1,
+  "fields": {
+    "hero_title": "Find Your Perfect Home",
+    "hero_description": "Search thousands of homes for sale and rent. Connect with trusted agents.",
+    "hero_image": "",
+    "hero_slider_autoplay": true,
+    "hero_slider_interval": 5000,
+    "logo": "site/estate_hub_logo_trimmed.png",
+    "favicon": "site/Black_and_White_House_Real_Estate_Logo_1DYHC35.jpg",
+    "og_image": "site/Black_and_White_House_Real_Estate_Logo_zTmwHcP.jpg",
+    "facebook_url": null,
+    "twitter_url": null,
+    "instagram_url": null,
+    "linkedin_url": null,
+    "youtube_url": null,
+    "show_developer_stradigtech": true,
+    "show_developer_mansib": false,
+    "ceo_name": "Mansib Ahsan",
+    "ceo_role": "CEO/Founder",
+    "ceo_signature": "",
+    "contact_address": "",
+    "contact_phone": null,
+    "contact_email": "estatehub@gmail.com",
+    "contact_opentime": ""
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 1,
+  "fields": {
+    "slug": "about-us",
+    "title": "Welcome to the EstateHub",
+    "description": "Welcome to EstateHub, where we turn houses into homes and dreams into reality. At EstateHub, we believe that a home is more than just a physical space; it's a place where memories are created, families grow, and life unfolds.",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 2,
+  "fields": {
+    "slug": "contact",
+    "title": "Drop Us A Line",
+    "description": "Feel free to connect with us through our online channels for updates, news, and more.",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 3,
+  "fields": {
+    "slug": "home",
+    "title": "Find Your Perfect Home",
+    "description": "Search thousands of homes for sale and rent. Connect with trusted agents.",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 4,
+  "fields": {
+    "slug": "services",
+    "title": "Our Services",
+    "description": "Home / Pages / Our Services",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 5,
+  "fields": {
+    "slug": "pricing",
+    "title": "Simple, Transparent Pricing",
+    "description": "Choose the plan that fits your business. Upgrade or cancel anytime.",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 6,
+  "fields": {
+    "slug": "blog",
+    "title": "From Our Blog",
+    "description": "LATEST NEW",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.pagecontent",
+  "pk": 7,
+  "fields": {
+    "slug": "listings",
+    "title": "Property Listings",
+    "description": "Find your dream property",
+    "updated_at": "2026-07-21T13:16:43.537Z"
+  }
+},
+{
+  "model": "cms.blogpost",
+  "pk": 1,
+  "fields": {
+    "title": "Building Gains Into Housing Stocks And How To Trade The Sector",
+    "slug": "building-gains-housing-stocks",
+    "author": "Jerome Bell",
+    "category": "Furniture",
+    "image": "",
+    "excerpt": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances...",
+    "content": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances...",
+    "published_date": "2026-07-21"
+  }
+},
+{
+  "model": "cms.blogpost",
+  "pk": 2,
+  "fields": {
+    "title": "How to choose the perfect furniture for your new home",
+    "slug": "choose-perfect-furniture",
+    "author": "Jerome Bell",
+    "category": "Furniture",
+    "image": "",
+    "excerpt": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances...",
+    "content": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances...",
+    "published_date": "2026-07-21"
+  }
+},
+{
+  "model": "cms.blogpost",
+  "pk": 3,
+  "fields": {
+    "title": "Real estate market predictions for the next 5 years",
+    "slug": "real-estate-market-predictions",
+    "author": "Jerome Bell",
+    "category": "Real Estate",
+    "image": "",
+    "excerpt": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances...",
+    "content": "The average contract interest rate for 30-year fixed-rate mortgages with conforming loan balances...",
+    "published_date": "2026-07-21"
+  }
+},
+{
+  "model": "cms.heroslide",
+  "pk": 1,
+  "fields": {
+    "site_setting": 1,
+    "image": "",
+    "image_url": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920&q=80",
+    "title": "Find Your Perfect Home",
+    "description": "Search thousands of homes for sale and rent. Connect with trusted agents.",
+    "order": 1,
+    "is_active": true,
+    "created_at": "2026-10-03T11:05:27.290Z"
+  }
+},
+{
+  "model": "cms.heroslide",
+  "pk": 2,
+  "fields": {
+    "site_setting": 1,
+    "image": "",
+    "image_url": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80",
+    "title": "Discover Luxury Living",
+    "description": "Explore premium estates and contemporary architecture in top locations.",
+    "order": 2,
+    "is_active": true,
+    "created_at": "2026-10-03T11:05:27.294Z"
+  }
+},
+{
+  "model": "cms.heroslide",
+  "pk": 3,
+  "fields": {
+    "site_setting": 1,
+    "image": "",
+    "image_url": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1920&q=80",
+    "title": "Find A Place You Will Love",
+    "description": "Verified properties with authentic tours and transparent neighborhood insights.",
+    "order": 3,
+    "is_active": true,
+    "created_at": "2026-10-03T11:05:27.297Z"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2026-10-03T07:17:43.334Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "accounts",
+      "user"
+    ],
+    "object_id": "de05fa44-b8c9-4f02-ad54-5d558ee0c43c",
+    "object_repr": "admin",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2026-10-03T07:17:51.786Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "accounts",
+      "user"
+    ],
+    "object_id": "ed71fbd8-82d2-4ae0-8168-0f4f04e16257",
+    "object_repr": "agent1",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2026-10-03T07:18:21.308Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "accounts",
+      "user"
+    ],
+    "object_id": "80e687df-7e40-4986-8e66-ddf877a64b75",
+    "object_repr": "SuperAdmin",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Role\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2026-10-03T07:18:26.644Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "accounts",
+      "user"
+    ],
+    "object_id": "411ebcc5-0a20-45e2-84fb-ab385de377b0",
+    "object_repr": "test@gmail.com",
+    "action_flag": 3,
+    "change_message": ""
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2026-10-03T08:42:18.635Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "accounts",
+      "user"
+    ],
+    "object_id": "80e687df-7e40-4986-8e66-ddf877a64b75",
+    "object_repr": "SuperAdmin",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"First name\", \"Last name\", \"Email address\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 11,
+  "fields": {
+    "action_time": "2026-10-03T09:31:45.197Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "accounts",
+      "user"
+    ],
+    "object_id": "70f3c05a-5e5b-454d-b22d-7cb787909c44",
+    "object_repr": "sifatss@gmail.com",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Agent status\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 12,
+  "fields": {
+    "action_time": "2026-10-03T09:45:07.832Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "properties",
+      "property"
+    ],
+    "object_id": "631dc4cc-3748-4704-8405-0abf749f9b0d",
+    "object_repr": "Casa Lomas de Machalí Machas",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Status\", \"Description\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 13,
+  "fields": {
+    "action_time": "2026-10-03T11:03:43.115Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "cms",
+      "sitesetting"
+    ],
+    "object_id": "1",
+    "object_repr": "Global Site Settings",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Ceo name\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 14,
+  "fields": {
+    "action_time": "2026-10-03T11:08:46.456Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "cms",
+      "sitesetting"
+    ],
+    "object_id": "1",
+    "object_repr": "Global Site Settings",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Logo\", \"Favicon\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 15,
+  "fields": {
+    "action_time": "2026-10-03T11:34:39.303Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "cms",
+      "sitesetting"
+    ],
+    "object_id": "1",
+    "object_repr": "Global Site Settings",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Logo\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 16,
+  "fields": {
+    "action_time": "2026-10-03T11:34:53.175Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "cms",
+      "sitesetting"
+    ],
+    "object_id": "1",
+    "object_repr": "Global Site Settings",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Og image\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 17,
+  "fields": {
+    "action_time": "2026-10-03T12:48:07.720Z",
+    "user": [
+      "SuperAdmin"
+    ],
+    "content_type": [
+      "properties",
+      "property"
+    ],
+    "object_id": "631dc4cc-3748-4704-8405-0abf749f9b0d",
+    "object_repr": "Casa Lomas de Machalí Machas",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Featured\", \"Cover Photo (Thumbnail)\"]}}]"
+  }
+}
+]

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Building2, Users, MapPin, Award, ArrowRight, Search, TrendingUp, Shield, Quote, Star, Phone, Mail } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Building2, Users, MapPin, Award, ArrowRight, Search, TrendingUp, Shield, Quote, Star, Phone, Mail, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import SearchBar from '@/components/properties/SearchBar';
@@ -62,20 +62,29 @@ const AGENTS = [
 ];
 
 import { useAuth } from '@/lib/AuthContext';
-import { cmsService, propertyService } from '@/api/services';
+import { cmsService, propertyService, agentService } from '@/api/services';
+import BecomePartnerBanner from '@/components/common/BecomePartnerBanner';
 
 export default function Home() {
     const { siteSettings } = useAuth();
+    const [freshSettings, setFreshSettings] = useState(null);
     const [featured, setFeatured] = useState([]);
     const [blogs, setBlogs] = useState([]);
+    const [teamAgents, setTeamAgents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [pageContent, setPageContent] = useState(null);
+    const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
 
     useEffect(() => {
         propertyService.list({ status: 'active', limit: 6 })
             .then((data) => setFeatured(data.results || data))
             .catch(() => { })
             .finally(() => setLoading(false));
+
+        cmsService.getSettings()
+            .then(data => setFreshSettings(data))
+            .catch(() => {});
 
         cmsService.getPageContent('home')
             .then(data => setPageContent(data))
@@ -84,30 +93,145 @@ export default function Home() {
         cmsService.getBlogs()
             .then(data => setBlogs((data.results || data).slice(0, 3)))
             .catch(() => {});
+
+        agentService.list({ featured: true })
+            .then(data => {
+                const list = data.results || data;
+                if (Array.isArray(list) && list.length > 0) {
+                    setTeamAgents(list);
+                } else {
+                    // Try fetching all approved agents if none explicitly featured
+                    agentService.list()
+                        .then(allData => {
+                            const allList = allData.results || allData;
+                            if (Array.isArray(allList) && allList.length > 0) {
+                                setTeamAgents(allList);
+                            }
+                        })
+                        .catch(() => {});
+                }
+            })
+            .catch(() => {});
     }, []);
 
-    const heroImage = siteSettings?.hero_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920";
+    const effectiveSettings = freshSettings || siteSettings;
+
+    // Active slides from backend or fallback to hero_image / default
+    const slides = (effectiveSettings?.hero_slides && effectiveSettings.hero_slides.length > 0)
+        ? effectiveSettings.hero_slides
+        : [
+            {
+                image_display: effectiveSettings?.hero_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920",
+                title: effectiveSettings?.hero_title || pageContent?.title || "Find Your Perfect Home",
+                description: effectiveSettings?.hero_description || pageContent?.description || "Search thousands of homes for sale and rent. Connect with trusted agents."
+            }
+        ];
+
+    // Autoplay slider
+    useEffect(() => {
+        if (slides.length <= 1 || isPaused || effectiveSettings?.hero_slider_autoplay === false) return;
+        const intervalTime = effectiveSettings?.hero_slider_interval || 5000;
+        const timer = setInterval(() => {
+            setCurrentSlideIndex(prev => (prev + 1) % slides.length);
+        }, intervalTime);
+        return () => clearInterval(timer);
+    }, [slides.length, isPaused, effectiveSettings?.hero_slider_autoplay, effectiveSettings?.hero_slider_interval]);
+
+    const activeSlide = slides[currentSlideIndex % slides.length];
+    const heroTitle = activeSlide?.title || effectiveSettings?.hero_title || pageContent?.title || "Find Your Perfect Home";
+    const heroDescription = activeSlide?.description || effectiveSettings?.hero_description || pageContent?.description || "Search thousands of homes for sale and rent. Connect with trusted agents.";
+
+    const nextSlide = () => setCurrentSlideIndex(prev => (prev + 1) % slides.length);
+    const prevSlide = () => setCurrentSlideIndex(prev => (prev - 1 + slides.length) % slides.length);
 
     return (
         <div>
-            <section className="relative min-h-[600px] flex items-center justify-center">
-                <div className="absolute inset-0">
-                    <img src={heroImage} alt="Hero" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+            <section 
+                className="relative min-h-[620px] flex items-center justify-center overflow-hidden group select-none"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+            >
+                {/* Background Image Slider with Crossfade & Subtle Zoom */}
+                <div className="absolute inset-0 overflow-hidden">
+                    <AnimatePresence initial={false}>
+                        <motion.div
+                            key={currentSlideIndex}
+                            initial={{ opacity: 0, scale: 1.04 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.9, ease: "easeInOut" }}
+                            className="absolute inset-0"
+                        >
+                            <img 
+                                src={activeSlide?.image_display || activeSlide?.image_url || activeSlide?.image || effectiveSettings?.hero_image || "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1920"} 
+                                alt={heroTitle} 
+                                className="w-full h-full object-cover" 
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/75" />
+                        </motion.div>
+                    </AnimatePresence>
                 </div>
+
+                {/* Prev / Next Slide Arrows (shown if more than 1 slide) */}
+                {slides.length > 1 && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={prevSlide}
+                            aria-label="Previous slide"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/35 hover:bg-black/70 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-105 cursor-pointer shadow-lg"
+                        >
+                            <ChevronLeft className="w-6 h-6" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={nextSlide}
+                            aria-label="Next slide"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/35 hover:bg-black/70 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 hover:scale-105 cursor-pointer shadow-lg"
+                        >
+                            <ChevronRight className="w-6 h-6" />
+                        </button>
+                    </>
+                )}
+
+                {/* Hero Content */}
                 <div className="relative z-10 px-4 py-20 text-center w-full">
-                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 max-w-3xl mx-auto leading-tight">
-                            {pageContent?.title || "Find Your Perfect Home"}
+                    <motion.div 
+                        key={heroTitle}
+                        initial={{ opacity: 0, y: 15 }} 
+                        animate={{ opacity: 1, y: 0 }} 
+                        transition={{ duration: 0.6 }}
+                    >
+                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 max-w-3xl mx-auto leading-tight drop-shadow-sm">
+                            {heroTitle}
                         </h1>
-                        <p className="text-lg text-white/80 mb-8 max-w-xl mx-auto whitespace-pre-line">
-                            {pageContent?.description || "Search thousands of homes for sale and rent. Connect with trusted agents."}
+                        <p className="text-lg text-white/90 mb-8 max-w-xl mx-auto whitespace-pre-line drop-shadow-sm">
+                            {heroDescription}
                         </p>
                     </motion.div>
                     <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }}>
                         <SearchBar />
                     </motion.div>
                 </div>
+
+                {/* Slide Indicator Dots / Pills */}
+                {slides.length > 1 && (
+                    <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+                        {slides.map((_, idx) => (
+                            <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setCurrentSlideIndex(idx)}
+                                aria-label={`Go to slide ${idx + 1}`}
+                                className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                                    idx === currentSlideIndex % slides.length 
+                                        ? 'w-8 bg-primary shadow-md' 
+                                        : 'w-2 bg-white/60 hover:bg-white'
+                                }`}
+                            />
+                        ))}
+                    </div>
+                )}
             </section>
 
             <section className="border-b border-border bg-white">
@@ -251,29 +375,72 @@ export default function Home() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                        {AGENTS.map((agent, i) => (
-                            <motion.div key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                                <div className="group">
-                                    <div className="relative aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-muted">
-                                        <img src={agent.image} alt={agent.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                                    </div>
-                                    <div className="flex items-center justify-between px-1">
-                                        <div>
-                                            <h4 className="font-bold text-lg">{agent.name}</h4>
-                                            <p className="text-sm text-muted-foreground">{agent.role}</p>
+                        {(teamAgents.length > 0 ? teamAgents : AGENTS).map((agent, i) => {
+                            const agentName = agent.full_name || agent.name;
+                            const agentRole = agent.agent_title || agent.role || agent.bio || (agent.agency_name ? `${agent.agency_name} Agent` : "Administrative Staff");
+                            const agentImg = agent.avatar_url || agent.image || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80";
+                            const phone = agent.public_phone || agent.phone;
+                            const email = agent.public_email || agent.email;
+                            const agentId = agent.id;
+
+                            return (
+                                <motion.div key={agentId || i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+                                    <div className="group">
+                                        <Link to={agentId ? `/agents/${agentId}` : '#'} className="block relative aspect-[4/5] rounded-2xl overflow-hidden mb-4 bg-muted">
+                                            <img 
+                                                src={agentImg} 
+                                                alt={agentName} 
+                                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                                            />
+                                        </Link>
+                                        <div className="flex items-center justify-between px-1">
+                                            <div className="min-w-0 flex-1 pr-2">
+                                                <Link to={agentId ? `/agents/${agentId}` : '#'} className="block">
+                                                    <h4 className="font-bold text-lg text-foreground truncate hover:text-primary transition-colors">{agentName}</h4>
+                                                </Link>
+                                                <p className="text-sm text-muted-foreground truncate">{agentRole}</p>
+                                            </div>
+                                            <div className="flex gap-2 shrink-0">
+                                                {phone ? (
+                                                    <a 
+                                                        href={`tel:${phone}`}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-muted-foreground transition-all"
+                                                        title={`Call ${agentName} (${phone})`}
+                                                    >
+                                                        <Phone className="w-3.5 h-3.5" />
+                                                    </a>
+                                                ) : (
+                                                    <Link 
+                                                        to={agentId ? `/agents/${agentId}` : '#'}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                        title="Contact Agent"
+                                                    >
+                                                        <Phone className="w-3.5 h-3.5" />
+                                                    </Link>
+                                                )}
+                                                {email ? (
+                                                    <a 
+                                                        href={`mailto:${email}`}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-primary hover:text-white hover:border-primary text-muted-foreground transition-all"
+                                                        title={`Email ${agentName} (${email})`}
+                                                    >
+                                                        <Mail className="w-3.5 h-3.5" />
+                                                    </a>
+                                                ) : (
+                                                    <Link 
+                                                        to={agentId ? `/agents/${agentId}` : '#'}
+                                                        className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                                                        title="Email Agent"
+                                                    >
+                                                        <Mail className="w-3.5 h-3.5" />
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                                                <Phone className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button className="w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                                                <Mail className="w-3.5 h-3.5" />
-                                            </button>
-                                        </div>
                                     </div>
-                                </div>
-                            </motion.div>
-                        ))}
+                                </motion.div>
+                            );
+                        })}
                     </div>
                 </div>
             </section>
@@ -316,15 +483,8 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="py-16 bg-primary">
-                <div className="mx-auto max-w-4xl px-4 text-center">
-                    <h2 className="text-3xl font-bold text-primary-foreground mb-3">Are You a Real Estate Agent?</h2>
-                    <p className="text-primary-foreground/80 mb-6 max-w-xl mx-auto">Join EstateHub and list your properties to reach thousands of potential buyers and renters.</p>
-                    <Button asChild size="lg" variant="secondary">
-                        <Link to="/register">Get Started Free <ArrowRight className="w-4 h-4 ml-2" /></Link>
-                    </Button>
-                </div>
-            </section>
+            {/* Bottom Become Partner Banner */}
+            <BecomePartnerBanner />
         </div>
     );
 }

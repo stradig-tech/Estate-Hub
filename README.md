@@ -87,7 +87,7 @@ Estate Hub delivers an all-in-one property marketplace connecting property seeke
 | **Pillow (PIL)** | Image manipulation, thumbnailing, and auto-trimming |
 | **Django Jazzmin** | Modernized, clean Django Admin UI theme |
 | **Django CORS Headers** | Secure cross-origin resource sharing for frontend API consumption |
-| **SQLite / PostgreSQL** | SQLite for rapid local development; production-ready for PostgreSQL |
+| **SQLite / MySQL** | SQLite for rapid local development; production-ready for MySQL |
 
 ### Frontend
 | Technology | Description |

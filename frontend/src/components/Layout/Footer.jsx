@@ -15,11 +15,21 @@ export default function Footer() {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
                     <div className="col-span-2 md:col-span-2 lg:col-span-1">
-                        <Link to="/" className="flex items-center gap-2 mb-4">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
-                                <HomeIcon className="w-4 h-4 text-primary-foreground" />
-                            </div>
-                            <span className="text-lg font-bold">Estate<span className="text-primary">Hub</span></span>
+                        <Link to="/" className="flex items-center shrink-0 mb-4">
+                            {siteSettings?.logo ? (
+                                <img 
+                                    src={siteSettings.logo} 
+                                    alt="EstateHub Logo" 
+                                    className="h-10 sm:h-11 md:h-12 w-auto max-w-[190px] object-contain object-left transition-all" 
+                                />
+                            ) : (
+                                <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary">
+                                        <HomeIcon className="w-4 h-4 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-lg font-bold">Estate<span className="text-primary">Hub</span></span>
+                                </div>
+                            )}
                         </Link>
                         <p className="text-sm text-muted-foreground max-w-xs">
                             The trusted marketplace for real estate. Find your dream home or list your property with confidence.

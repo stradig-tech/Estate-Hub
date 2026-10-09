@@ -180,7 +180,7 @@ export default function Admin() {
                     </p>
                 </div>
                 <Button asChild variant="outline">
-                    <a href="http://localhost:8000/admin/" target="_blank" rel="noopener noreferrer" className="gap-1.5 text-xs font-semibold">
+                    <a href={import.meta.env.VITE_ADMIN_URL || (import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '/admin/') : 'http://localhost:8000/admin/')} target="_blank" rel="noopener noreferrer" className="gap-1.5 text-xs font-semibold">
                         <ExternalLink className="w-4 h-4" /> Open Full Django Admin Panel
                     </a>
                 </Button>
